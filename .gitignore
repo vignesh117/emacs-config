@@ -1,5 +1,6 @@
 # Compiled
 *.elc
+*.el
 
 # Packaging
 .cask
@@ -9,3 +10,20 @@
 
 # Undo-tree save-files
 *.~undo-tree
+
+# package directory
+elpa
+
+
+# Other directories generated 
+
+abbrev_defs
+anaconda-mode/
+eshell/
+helm-adaptive-history
+ido.last
+init.bak
+projectile-bookmarks.eld
+recentf
+snippets/
+tramp

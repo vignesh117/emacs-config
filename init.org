@@ -113,6 +113,8 @@
            '(auto-compile         ; automatically compile Emacs Lisp libraries
              use-package          ; Great package manager with nifty features
              undo-tree            ; Neat undo
+             sublime-themes       ; Heavily inspired themes from sublime text
+             powerline	       ; Powerline for emacs
              goto-chg             ; Required by evil
              evil                 ; Basic vim emulation 
              evil-nerd-commenter  ; Commenting system that goes with evil
@@ -189,9 +191,19 @@
    #+END_SRC
 *** Eye candy
     #+BEGIN_SRC emacs-lisp
-    (load-theme 'whiteboard t)
+    ;; (load-theme 'whiteboard t)
+    (load-theme 'spolsky t)			;sublime based theme
     #+END_SRC
+  
+Powerline for emacs 
+#+BEGIN_SRC emacs-lisp
+(powerline-vim-theme) 
+#+END_SRC 
+
+   
+
     Diminish some modes form modeline
+    
     #+BEGIN_SRC emacs-lisp
         (defmacro safe-diminish (file mode &optional new-name)
           `(with-eval-after-load ,file
