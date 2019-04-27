@@ -631,9 +631,9 @@ Spacemacs like config for python
  "s b" 'python-shell-send-buffer
 
  ;; navigation using anaconda
- "g d" 'anaconda-mode-find-definitions-other-window
- "g a" 'anaconda-mode-find-assignments-other-window
- "g r" 'anaconda-mode-find-assignments-other-window)
+ "g d" 'anaconda-mode-find-definitions
+ "g a" 'anaconda-mode-find-assignments
+ "g r" 'anaconda-mode-find-assignments-other-frame)
 
 ;; visual mode bindings
 (general-define-key
@@ -768,4 +768,8 @@ indeed in practise.
  "g g" 'avy-goto-char
  "g w" 'avy-goto-word-0
  "g b" 'avy-goto-char-2-above)
+
+(general-define-key
+ :keymaps '(normal)
+ "Q" 'delete-window)
 #+END_SRC
