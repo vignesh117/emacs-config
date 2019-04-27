@@ -613,6 +613,9 @@ These are evil specific keybindings. All definitions use general.el
 
     ;; quit
     "q q" 'save-buffers-kill-emacs
+
+    ;; Register bindings
+    "r y" 'helm-show-kill-ring
     )
     #+END_SRC
 *** EVIL python
