@@ -114,6 +114,8 @@
              use-package          ; Great package manager with nifty features
              undo-tree            ; Neat undo
              sublime-themes       ; Heavily inspired themes from sublime text
+             gruvbox-theme	       ;Another inspirational theme 
+             doom-themes	       ;Another amazing theme
              powerline	       ; Powerline for emacs
              goto-chg             ; Required by evil
              evil                 ; Basic vim emulation 
@@ -127,7 +129,6 @@
              helm-ag              ; the silver searcher with helm interface
              helm-company         ; Helm interface for company-mode
              helm-dash            ; Offline documentation using Dash docsets.
-             helm-projectile      ; Helm integration for Projectile
              helm-swoop           ; Efficiently hopping squeezed lines
              magit                ; control Git from Emacs
              markdown-mode        ; Emacs Major mode for Markdown-formatted files
@@ -136,8 +137,6 @@
              yasnippet            ; Superb template completion framework
              org                  ; Outline-based notes management and organizer
              org-ref              ; citations bibliographies in org-mode
-             pdf-tools            ; Emacs support library for PDF files
-             projectile           ; Manage and navigate projects in Emacs easily
              try                  ; Try out Emacs packages
              ag                   ; powerful silver searcher plugib
              helm-ag-r            ; helm wrapper for ag
@@ -185,14 +184,58 @@
    (fset 'yes-or-no-p 'y-or-n-p)
    #+END_SRC
    
+   Enable global evil-surround mode 
+   #+BEGIN_SRC emacs-lisp
+   (global-evil-surround-mode)
+   #+END_SRC
    Start emacs-server
    #+BEGIN_SRC emacs-lisp
    (server-start)
    #+END_SRC
 *** Eye candy
     #+BEGIN_SRC emacs-lisp
-    ;; (load-theme 'whiteboard t)
-    (load-theme 'spolsky t)			;sublime based theme
+        ;; (load-theme 'whiteboard t)
+        ;; (load-theme 'gruvbox-dark-medium t)			;sublime based theme
+        (load-theme 'doom-one t)
+        (set-frame-font "Fira Code 12" nil t)
+        (use-package doom-modeline
+              :ensure t
+              :hook (after-init . doom-modeline-mode)
+              :config
+              (setq doom-modeline-env-python-executable "python")
+
+              ;; Whether display perspective name or not. Non-nil to display in mode-line.
+              (setq doom-modeline-persp-name t)
+
+              ;; Whether display `lsp' state or not. Non-nil to display in mode-line.
+              (setq doom-modeline-lsp t)
+
+              ;; Whether display github notifications or not. Requires `ghub` package.
+              (setq doom-modeline-github nil)
+              ;; Whether display minor modes in mode-line or not.
+              (setq doom-modeline-minor-modes nil)
+
+              ;; If non-nil, a word count will be added to the selection-info modeline segment.
+              (setq doom-modeline-enable-word-count nil)
+
+              ;; If non-nil, only display one number for checker information if applicable.
+              (setq doom-modeline-checker-simple-format t)
+              ;; Whether display the icon for major mode. It respects `doom-modeline-icon'.
+              (setq doom-modeline-major-mode-icon t)
+
+              ;; Whether display color icons for `major-mode'. It respects
+              ;; `doom-modeline-icon' and `all-the-icons-color-icons'.
+              (setq doom-modeline-major-mode-color-icon t)
+
+              ;; Whether display icons for buffer states. It respects `doom-modeline-icon'.
+              (setq doom-modeline-buffer-state-icon t)
+
+              ;; Whether display buffer modification icon. It respects `doom-modeline-icon'
+              ;; and `doom-modeline-buffer-state-icon'.
+              (setq doom-modeline-buffer-modification-icon t)
+
+    ) 
+
     #+END_SRC
   
 Powerline for emacs 
@@ -215,7 +258,6 @@ Powerline for emacs
         (safe-diminish "undo-tree" 'undo-tree-mode)
         (safe-diminish "flyspell" 'flyspell-mode)
         (safe-diminish "helm-mode" 'helm-mode)
-        (safe-diminish "projectile" 'projectile-mode)
         (safe-diminish "evil-org" 'evil-org-mode) 
         (safe-diminish "paredit" 'paredit-mode "()") 
     #+END_SRC
@@ -229,7 +271,6 @@ Powerline for emacs
                 delete-selection-mode        ; Replace selected text
                 dirtrack-mode                ; directory tracking in *shell*
                 global-company-mode          ; Auto-completion everywhere
-                projectile-global-mode       ; Manage and navigate projects
                 show-paren-mode              ; Highlight matching parentheses
                 which-key-mode))             ; Available keybindings in popup
        (funcall mode 1))
@@ -288,14 +329,12 @@ Powerline for emacs
              helm-M-x-fuzzy-match t
              helm-buffers-fuzzy-matching t
              helm-recentf-fuzzy-match t
-             helm-move-to-line-cycle-in-source t
-             projectile-completion-system 'helm)
+             helm-move-to-line-cycle-in-source t)
        :bind  (("M-<f5>" . helm-find-files)
               ([f10] . helm-buffers-list)
               ([S-f10] . helm-recentf))
        )
      (helm-mode 1)
-     (helm-projectile-on)
      (helm-adaptive-mode 1)
 
     #+END_SRC 
@@ -628,6 +667,7 @@ Spacemacs like config for python
  :non-normal-prefix "M-S-SPC"
  ;; python shell
  "p" 'run-python
+ "z" 'python-shell-switch-to-shell
  "s z" 'python-shell-switch-to-shell
  "s l" 'vig/python-shell-send-line
  "s f" 'vig/python-shell-send-fun-and-move
@@ -636,7 +676,8 @@ Spacemacs like config for python
  ;; navigation using anaconda
  "g d" 'anaconda-mode-find-definitions
  "g a" 'anaconda-mode-find-assignments
- "g r" 'anaconda-mode-find-assignments-other-frame)
+ "g r" 'anaconda-mode-find-assignments-other-frame
+ "g l" 'helm-imenu)
 
 ;; visual mode bindings
 (general-define-key
