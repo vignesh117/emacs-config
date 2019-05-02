@@ -631,11 +631,14 @@ These are evil specific keybindings. All definitions use general.el
     "w =" 'balance-windows
 
     ;; Buffer configurations
-    "b d" 'kill-buffer
+    "b d" 'kill-this-buffer			;Kills without asking
     "b k" 'kill-buffer-and-window
     "b b" 'helm-buffers-list
     "[ [" 'previous-buffer
     "] ]" 'next-buffer
+
+    ;; Dired
+    "a d" 'dired
 
     ;; File management
     "f f" 'helm-find-files
@@ -811,7 +814,13 @@ indeed in practise.
  :non-normal-prefix "M-S-SPC"
  "g g" 'avy-goto-char
  "g w" 'avy-goto-word-0
- "g b" 'avy-goto-char-2-above)
+ "g b" 'avy-goto-char-2-above
+
+ ;; neotree
+ "t t" 'neotree-toggle
+ "t c" 'neotree-dir)
+
+
 
 (general-define-key
  :keymaps '(normal)
