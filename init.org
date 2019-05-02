@@ -184,10 +184,6 @@
    (fset 'yes-or-no-p 'y-or-n-p)
    #+END_SRC
    
-   Enable global evil-surround mode 
-   #+BEGIN_SRC emacs-lisp
-   (global-evil-surround-mode)
-   #+END_SRC
    Start emacs-server
    #+BEGIN_SRC emacs-lisp
    (server-start)
