@@ -120,6 +120,7 @@
              goto-chg             ; Required by evil
              evil                 ; Basic vim emulation 
              evil-nerd-commenter  ; Commenting system that goes with evil
+             ranger	       ; Amazing file manager
              company              ; Modular text completion framework
              define-word          ; display the definition of word at point
              diminish             ; Diminished modes from modeline
@@ -401,13 +402,15 @@ Powerline for emacs
            'org-babel-load-languages
            '((R . t)
            (emacs-lisp . t)
+	         (matlab . t)
+	         (latex . t)
            (python . t)))
 
            ;; When editing org-files with source-blocks, we want the source
            ;; blocks to be themed as they would in their native mode.
     
            (setq org-src-fontify-natively t
-                 org-src-tab-acts-natively t
+                 ;; org-src-tab-acts-natively t
                  org-confirm-babel-evaluate nil
                  org-edit-src-content-indentation 0
                  org-adapt-indentation nil
@@ -449,6 +452,10 @@ Powerline for emacs
 
       ) 
 
+    (use-package latex-preview-pane
+      :ensure t
+      :defer t)
+
     (use-package tex-site
       :ensure auctex
       :mode ("\\.tex\\'" . latex-mode)
@@ -470,6 +477,12 @@ Powerline for emacs
                   (setq TeX-view-program-list
                         '(("PDF Viewer" "/Applications/Skim.app/Contents/SharedSupport/displayline -b -g %n %o %b")))
 
+                  ;; Fix indentation
+                  (setq LaTeX-indent-level 3)
+                  (setq LaTeX-item-indent 3)
+                  (setq TeX-brace-indent-level 3)
+
+                  ;; Start server for synctec model
                   (server-start); start emacs in server mode so that skim can talk to it(setq TeX-source-correlate-start-server t)
                   ))
       ) 
@@ -547,37 +560,23 @@ amazingly well with evil. Let us first start by enabling evil mode
      :defer t
      :after org)
    #+END_SRC
-   
+4. Poly mode and poly org mode provide nice integration with org 
+#+BEGIN_SRC emacs-lisp
+(use-package polymode
+  :ensure t 
+	:ensure poly-org 
+  :after org)
+#+END_SRC
 *** general
 #+BEGIN_SRC emacs-lisp
 (use-package general
   :ensure t)
 #+END_SRC
-** Utility functions
-   This functions comments a line or region
-   #+BEGIN_SRC emacs-lisp
-    (defun comment-or-uncomment-region-or-line ()
-      "Comments or uncomments the region or the current line if there's no active region."
-      (interactive)
-      (let (beg end)
-        (if (region-active-p)
-            (setq beg (region-beginning) end (region-end))
-          (setq beg (line-beginning-position) end (line-end-position)))
-        (comment-or-uncomment-region beg end)
-        (next-line)))
-   #+END_SRC
-
-   This tidies the entire buffer
-   #+BEGIN_SRC emacs-lisp
-    (defun vig/tidy ()
-      "Ident, untabify and unwhitespacify current buffer, or region if active."
-      (interactive)
-      (let ((beg (if (region-active-p) (region-beginning) (point-min)))
-            (end (if (region-active-p) (region-end) (point-max))))
-        (indent-region beg end)
-        (whitespace-cleanup)
-        (untabify beg (if (< end (point-max)) end (point-max)))))
-   #+END_SRC
+*** Neo tree
+#+BEGIN_SRC emacs-lisp
+(use-package neotree
+  :ensure t)
+#+END_SRC
 * Keybindings
 ** Expand region
    #+BEGIN_SRC emacs-lisp
@@ -634,7 +633,7 @@ These are evil specific keybindings. All definitions use general.el
     "] ]" 'next-buffer
 
     ;; Dired
-    "a d" 'dired
+    "a d" 'deer
 
     ;; File management
     "f f" 'helm-find-files
