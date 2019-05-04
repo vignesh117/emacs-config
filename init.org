@@ -482,8 +482,6 @@ Powerline for emacs
                   (setq LaTeX-item-indent 3)
                   (setq TeX-brace-indent-level 3)
 
-                  ;; Start server for synctec model
-                  (server-start); start emacs in server mode so that skim can talk to it(setq TeX-source-correlate-start-server t)
                   ))
       ) 
     (use-package auctex-latexmk
@@ -576,6 +574,19 @@ amazingly well with evil. Let us first start by enabling evil mode
 #+BEGIN_SRC emacs-lisp
 (use-package neotree
   :ensure t)
+#+END_SRC
+*** Navigation 
+#+BEGIN_SRC emacs-lisp
+(use-package sentence-navigation
+  :ensure t
+  :defer t
+  :config
+  (define-key evil-motion-state-map ")" 'sentence-nav-evil-forward)
+  (define-key evil-motion-state-map "(" 'sentence-nav-evil-backward)
+  (define-key evil-motion-state-map "g)" 'sentence-nav-evil-forward-end)
+  (define-key evil-motion-state-map "g(" 'sentence-nav-evil-backward-end)
+  (define-key evil-outer-text-objects-map "s" 'sentence-nav-evil-a-sentence)
+  (define-key evil-inner-text-objects-map "s" 'sentence-nav-evil-inner-sentence)) 
 #+END_SRC
 * Keybindings
 ** Expand region
