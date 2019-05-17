@@ -382,12 +382,22 @@ Powerline for emacs
                   (yas-minor-mode)
                   (yas-reload-all)))
       (add-to-list 'company-backends #'company-anaconda)
+      (flycheck-mode)
       :bind (:map python-mode-map (
                                    ("M-RET" . 'vig/python-shell-send-line)
                                    ("<C-return>" . 'vig/python-shell-send-fun-and-move)
                                    ("<S-return>" . 'python-shell-send-region)
                                    ))
       )
+
+    ;; Enable flycheck mode in python
+    (use-package flycheck
+      :ensure t
+      :defer t
+    )
+    (use-package flycheck-pycheckers
+      :ensure t
+      :defer t)
 
     #+END_SRC
 *** Org mode
@@ -553,26 +563,14 @@ amazingly well with evil. Let us first start by enabling evil mode
 3. Evil-surround
    Gives vim-like surround capabilities. 
    #+BEGIN_SRC emacs-lisp
-   (use-package evil-surround
-     :ensure t
-     :defer t
-     :after org)
+   ;; (use-package evil-surround
+   ;;   :ensure t
+   ;;   :defer t
+   ;;   :after org)
    #+END_SRC
-4. Poly mode and poly org mode provide nice integration with org 
-#+BEGIN_SRC emacs-lisp
-(use-package polymode
-  :ensure t 
-	:ensure poly-org 
-  :after org)
-#+END_SRC
 *** general
 #+BEGIN_SRC emacs-lisp
 (use-package general
-  :ensure t)
-#+END_SRC
-*** Neo tree
-#+BEGIN_SRC emacs-lisp
-(use-package neotree
   :ensure t)
 #+END_SRC
 *** Navigation 
@@ -699,14 +697,14 @@ Spacemacs like config for python
 *** EVIL matlab
 #+BEGIN_SRC emacs-lisp
 (general-define-key
- :states '(normal insert)
+ :states '(normal insert visual)
  :keymaps 'matlab-mode-map
  :prefix ","
  :non-normal-prefix "M-S-SPC"
 
  ;; Running 
  "p" 'matlab-shell
- "," 'matlab-shell-run-region-or-line
+ ","  'vig/matlab-shell-send-line
  "r r" 'matlab-shell-run-region
  "r c" 'matlab-shell-run-cell
 
@@ -724,7 +722,11 @@ Spacemacs like config for python
  :non-normal-prefix "M-S-SPC"
  "e e" 'org-export-dispatch
  "n n" 'org-narrow-to-subtree
- "n w" 'widen)
+ "n w" 'widen
+
+ ;; Citations
+ "c" 'org-ref-helm-insert-cite-link
+ "r" 'org-ref-helm-insert-ref-link)
  #+END_SRC
 *** EVIL latex 
 #+BEGIN_SRC emacs-lisp
