@@ -613,6 +613,7 @@ These are evil specific keybindings. All definitions use general.el
      "C-a" 'beginning-of-visual-line
      "M-+" 'text-scale-increase
      "M-_" 'text-scale-decrease
+     "C-u" 'evil-scroll-up
      )
     #+END_SRC
 
