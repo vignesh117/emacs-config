@@ -614,6 +614,7 @@ These are evil specific keybindings. All definitions use general.el
      "M-+" 'text-scale-increase
      "M-_" 'text-scale-decrease
      "C-u" 'evil-scroll-up
+     "M-p" 'helm-mini
      )
     #+END_SRC
 
