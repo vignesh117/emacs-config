@@ -137,11 +137,11 @@
              multiple-cursors     ; Multiple cursors for Emacs
              yasnippet            ; Superb template completion framework
              org                  ; Outline-based notes management and organizer
-             org-ref              ; citations bibliographies in org-mode
              try                  ; Try out Emacs packages
              ag                   ; powerful silver searcher plugib
              helm-ag-r            ; helm wrapper for ag
              swiper               ; Search
+             multi-term	      ; A terminal application that respects the shell config
              smex                 ; alternative mx
              realgud              ; great debugging framework
              which-key)))         ; Display available keybindings in popup
@@ -586,6 +586,18 @@ amazingly well with evil. Let us first start by enabling evil mode
   (define-key evil-outer-text-objects-map "s" 'sentence-nav-evil-a-sentence)
   (define-key evil-inner-text-objects-map "s" 'sentence-nav-evil-inner-sentence)) 
 #+END_SRC
+*** Utils 
+#+BEGIN_SRC emacs-lisp
+(defun er-copy-file-name-to-clipboard ()
+  "Copy the current buffer file name to the clipboard."
+  (interactive)
+  (let ((filename (if (equal major-mode 'dired-mode)
+                      default-directory
+                    (buffer-file-name))))
+    (when filename
+      (kill-new filename)
+      (message "Copied buffer file name '%s' to the clipboard." filename))))
+#+END_SRC
 * Keybindings
 ** Expand region
    #+BEGIN_SRC emacs-lisp
@@ -614,7 +626,7 @@ These are evil specific keybindings. All definitions use general.el
      "M-+" 'text-scale-increase
      "M-_" 'text-scale-decrease
      "C-u" 'evil-scroll-up
-     "M-p" 'helm-mini
+     "<f5>" 'helm-mini
      )
     #+END_SRC
 
@@ -650,6 +662,7 @@ These are evil specific keybindings. All definitions use general.el
     "f f" 'helm-find-files
     "f r" 'helm-recentf
     "f d" 'dired-jump-other-window
+    "f y" 'er-copy-file-name-to-clipboard
 
     ;; Search
     "/" 'helm-swoop
