@@ -121,6 +121,7 @@
              evil                 ; Basic vim emulation 
              evil-nerd-commenter  ; Commenting system that goes with evil
              ranger	       ; Amazing file manager
+             sr-speedbar	       ; VIM-like tagbar and file list
              company              ; Modular text completion framework
              define-word          ; display the definition of word at point
              diminish             ; Diminished modes from modeline
@@ -130,7 +131,6 @@
              helm-ag              ; the silver searcher with helm interface
              helm-company         ; Helm interface for company-mode
              helm-dash            ; Offline documentation using Dash docsets.
-             helm-swoop           ; Efficiently hopping squeezed lines
              magit                ; control Git from Emacs
              markdown-mode        ; Emacs Major mode for Markdown-formatted files
              matlab-mode          ; MATLAB integration with Emacs
@@ -380,7 +380,8 @@ Powerline for emacs
                   (anaconda-mode)
                   (anaconda-eldoc-mode)
                   (yas-minor-mode)
-                  (yas-reload-all)))
+                  (yas-reload-all)
+                  (flycheck-mode)))
       (add-to-list 'company-backends #'company-anaconda)
       (flycheck-mode)
       :bind (:map python-mode-map (
@@ -491,7 +492,7 @@ Powerline for emacs
                   (setq LaTeX-indent-level 3)
                   (setq LaTeX-item-indent 3)
                   (setq TeX-brace-indent-level 3)
-
+                  (add-to-list 'company-backends 'company-math-symbols-unicode)
                   ))
       ) 
     (use-package auctex-latexmk
@@ -500,6 +501,10 @@ Powerline for emacs
       :config
       (auctex-latexmk-setup)
       )
+
+    (use-package company-math
+      :ensure t
+      :after auctex)
 
 
     #+END_SRC
@@ -620,7 +625,7 @@ These are evil specific keybindings. All definitions use general.el
     (general-define-key
      :keymaps '(normal insert emacs)
      "M-x" 'smex
-     "C-s" 'helm-swoop
+     "C-s" 'swiper-isearch
      "C-e" 'end-of-line
      "C-a" 'beginning-of-visual-line
      "M-+" 'text-scale-increase
@@ -696,10 +701,17 @@ Spacemacs like config for python
  "s b" 'python-shell-send-buffer
 
  ;; navigation using anaconda
- "g d" 'anaconda-mode-find-definitions
- "g a" 'anaconda-mode-find-assignments
- "g r" 'anaconda-mode-find-assignments-other-frame
- "g l" 'helm-imenu)
+ "f d" 'anaconda-mode-find-definitions
+ "f a" 'anaconda-mode-find-assignments
+ "f r" 'anaconda-mode-find-references-other-window
+ "f l" 'helm-imenu
+ 
+ ;; Flycheck error navigation
+ "e n" 'flycheck-next-error 
+ "e p" 'flycheck-previous-error
+ )
+ 
+
 
 ;; visual mode bindings
 (general-define-key
@@ -819,7 +831,7 @@ Spacemacs like config for python
 
 
 (general-define-key
- :keymaps '(visual)
+ :keymaps '(visual emacs insert)
  "M-d" 'mc/mark-next-word-like-this)
 #+END_SRC
 When in visual model (especially after selecting a word using =expand
@@ -839,9 +851,13 @@ indeed in practise.
  "g w" 'avy-goto-word-0
  "g b" 'avy-goto-char-2-above
 
- ;; neotree
- "t t" 'neotree-toggle
- "t c" 'neotree-dir)
+ ;; ;; neotree
+ ;; "t t" 'neotree-toggle
+ ;; "t c" 'neotree-dir)
+ 
+
+ ;; speedbar
+ "t s" 'sr-speedbar-toggle)
 
 
 
