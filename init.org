@@ -401,17 +401,17 @@ Powerline for emacs
       :defer t)
 
     #+END_SRC
-    Use this awesome package by abo-abo called =lpy-mode=
+    # Use this awesome package by abo-abo called =lpy-mode=
     #+BEGIN_SRC emacs-lisp
-    (use-package lispy
-      :ensure t)
-    (if (not 
-         (file-directory-p "~/.emacs.d/lpy") )
-         (shell-command "git clone https://github.com/abo-abo/lpy.git ~/.emacs.d/lpy")
-         (message "lpy exists"))
-    (add-to-list 'load-path "~/.emacs.d/lpy")
-    (require 'lpy)
-    (add-hook 'python-mode-hook 'lpy-mode)
+    ;; (use-package lispy
+    ;;   :ensure t)
+    ;; (if (not 
+    ;;      (file-directory-p "~/.emacs.d/lpy") )
+    ;;      (shell-command "git clone https://github.com/abo-abo/lpy.git ~/.emacs.d/lpy")
+    ;;      (message "lpy exists"))
+    ;; (add-to-list 'load-path "~/.emacs.d/lpy")
+    ;; (require 'lpy)
+    ;; (add-hook 'python-mode-hook 'lpy-mode)
     #+END_SRC
 *** Org mode
     1. *Babel*: Org babel lets you to write and execute a lot of
