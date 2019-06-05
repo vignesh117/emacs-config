@@ -401,6 +401,18 @@ Powerline for emacs
       :defer t)
 
     #+END_SRC
+    Use this awesome package by abo-abo called =lpy-mode=
+    #+BEGIN_SRC emacs-lisp
+    (use-package lispy
+      :ensure t)
+    (if (not 
+         (file-directory-p "~/.emacs.d/lpy") )
+         (shell-command "git clone https://github.com/abo-abo/lpy.git ~/.emacs.d/lpy")
+         (message "lpy exists"))
+    (add-to-list 'load-path "~/.emacs.d/lpy")
+    (require 'lpy)
+    (add-hook 'python-mode-hook 'lpy-mode)
+    #+END_SRC
 *** Org mode
     1. *Babel*: Org babel lets you to write and execute a lot of
        languages within org mode
@@ -628,6 +640,7 @@ These are evil specific keybindings. All definitions use general.el
      "C-s" 'swiper-isearch
      "C-e" 'end-of-line
      "C-a" 'beginning-of-visual-line
+     "C-k" 'kill-line
      "M-+" 'text-scale-increase
      "M-_" 'text-scale-decrease
      "C-u" 'evil-scroll-up
@@ -701,10 +714,10 @@ Spacemacs like config for python
  "s b" 'python-shell-send-buffer
 
  ;; navigation using anaconda
- "f d" 'anaconda-mode-find-definitions
- "f a" 'anaconda-mode-find-assignments
- "f r" 'anaconda-mode-find-references-other-window
- "f l" 'helm-imenu
+ "g d" 'anaconda-mode-find-definitions
+ "g a" 'anaconda-mode-find-assignments
+ "g r" 'anaconda-mode-find-references-other-window
+ "g l" 'helm-imenu
  
  ;; Flycheck error navigation
  "e n" 'flycheck-next-error 
@@ -858,8 +871,6 @@ indeed in practise.
 
  ;; speedbar
  "t s" 'sr-speedbar-toggle)
-
-
 
 (general-define-key
  :keymaps '(normal)
