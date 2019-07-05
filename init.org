@@ -111,15 +111,18 @@
    (let* ((package--builtins nil)
           (packages
            '(auto-compile         ; automatically compile Emacs Lisp libraries
+             rg		       ; An even faster search optinon compared to ag 
              use-package          ; Great package manager with nifty features
              undo-tree            ; Neat undo
              sublime-themes       ; Heavily inspired themes from sublime text
              gruvbox-theme	       ;Another inspirational theme 
              doom-themes	       ;Another amazing theme
+             deadgrep	       ; Powerful grep 
              powerline	       ; Powerline for emacs
              goto-chg             ; Required by evil
              evil                 ; Basic vim emulation 
              evil-nerd-commenter  ; Commenting system that goes with evil
+             projectile	       ; Project management
              ranger	       ; Amazing file manager
              sr-speedbar	       ; VIM-like tagbar and file list
              company              ; Modular text completion framework
@@ -129,6 +132,8 @@
              golden-ratio         ; Automatic resizing windows to golden ratio
              helm                 ; Incremental and narrowing framework
              helm-ag              ; the silver searcher with helm interface
+             helm-projectile      ; Helm wrapper for projectile
+             helm-rg	       ; Wrapper for rg
              helm-company         ; Helm interface for company-mode
              helm-dash            ; Offline documentation using Dash docsets.
              hydra		      ; Another nice aboabo package for persisten keys
@@ -136,6 +141,7 @@
              markdown-mode        ; Emacs Major mode for Markdown-formatted files
              matlab-mode          ; MATLAB integration with Emacs
              multiple-cursors     ; Multiple cursors for Emacs
+             projectile	       ; Project management
              yasnippet            ; Superb template completion framework
              org                  ; Outline-based notes management and organizer
              try                  ; Try out Emacs packages
@@ -188,14 +194,14 @@
    
    Start emacs-server
    #+BEGIN_SRC emacs-lisp
-   (server-start)
+   ;; (server-start)
    #+END_SRC
 *** Eye candy
     #+BEGIN_SRC emacs-lisp
         ;; (load-theme 'whiteboard t)
         ;; (load-theme 'gruvbox-dark-medium t)			;sublime based theme
         (load-theme 'doom-one t)
-        (set-frame-font "Fira Code 12" nil t)
+        ;; (set-frame-font "Fira Code 12" nil t)
         (use-package doom-modeline
               :ensure t
               :hook (after-init . doom-modeline-mode)
@@ -263,15 +269,17 @@ Powerline for emacs
     Enable several packages by default. These are typically used
     throughout the config on all the major modes.
     #+BEGIN_SRC emacs-lisp
-     (dolist (mode
-              '(abbrev-mode                  ; E.g. sopl -> System.out.println
-                column-number-mode           ; Show column number in mode line
-                delete-selection-mode        ; Replace selected text
-                dirtrack-mode                ; directory tracking in *shell*
-                ;; global-company-mode          ; Auto-completion everywhere
-                show-paren-mode              ; Highlight matching parentheses
-                which-key-mode))             ; Available keybindings in popup
-       (funcall mode 1))
+    (dolist (mode
+             '(abbrev-mode                  ; E.g. sopl -> System.out.println
+               column-number-mode           ; Show column number in mode line
+               delete-selection-mode        ; Replace selected text
+               dirtrack-mode                ; directory tracking in *shell*
+               global-company-mode          ; Auto-completion everywhere
+               projectile-mode		; Global projectile mode
+               projectile-mode		  ; Global projectile mode
+               show-paren-mode              ; Highlight matching parentheses
+               which-key-mode))             ; Available keybindings in popup
+      (funcall mode 1))
     #+END_SRC
     
     Basic company mode config
@@ -280,6 +288,21 @@ Powerline for emacs
           company-minimum-prefix-length 3
           company-selection-wrap-around t)  ;wrapping around list of selections when scrolling
 
+    ;; got this from https://www.reddit.com/r/emacs/comments/3r9fic/best_practicestip_for_companymode_andor_yasnippet/
+
+    (setq company-transformers '(company-sort-by-occurrence))
+
+    ;; Add yasnippet support for all company backends
+    ;; https://github.com/syl20bnr/spacemacs/pull/179
+    (defvar company-mode/enable-yas t "Enable yasnippet for all backends.")
+
+    (defun company-mode/backend-with-yas (backend)
+      (if (or (not company-mode/enable-yas) (and (listp backend)    (member 'company-yasnippet backend)))
+      backend
+    (append (if (consp backend) backend (list backend))
+            '(:with company-yasnippet))))
+
+    (setq company-backends (mapcar #'company-mode/backend-with-yas company-backends))
     #+END_SRC
 ** Modes
    Now we write down language specific (python, latex, org, etc.) or
@@ -391,8 +414,8 @@ Powerline for emacs
                   (anaconda-mode)
                   (company-mode)
                   (anaconda-eldoc-mode)
-                  (yas-minor-mode)
-                  (yas-reload-all)
+                  ;; (yas-minor-mode)
+                  ;; (yas-reload-all)
                   (flycheck-mode)))
       ;; (add-to-list 'company-backends #'company-anaconda)
       (eval-after-load "company"
@@ -679,6 +702,12 @@ Hydras for manipulating windows
   ("u" (progn (winner-undo) (setq this-command 'winner-undo)) "undo")
   ("f" nil))
 #+END_SRC
+Frog jump mode for super fast buffer jumping
+#+BEGIN_SRC emacs-lisp
+(use-package frog-jump-buffer
+  :ensure t
+  :bind ("<f10>" . 'frog-jump-buffer))
+#+END_SRC
 *** Utils 
 #+BEGIN_SRC emacs-lisp
 (defun er-copy-file-name-to-clipboard ()
@@ -706,6 +735,7 @@ Hydras for manipulating windows
     (global-set-key (kbd "<C-tab>") 'vig/tidy)
    #+END_SRC
 ** EVIL
+*** General Evil bindings
 These are evil specific keybindings. All definitions use general.el 
 
 1. M-x 
@@ -722,6 +752,7 @@ These are evil specific keybindings. All definitions use general.el
      "C-u" 'evil-scroll-up
      "<f5>" 'helm-mini
      "C-M-o" 'hydra-window/body
+     "<f6>" 'deadgrep
      )
     #+END_SRC
 
@@ -759,10 +790,24 @@ These are evil specific keybindings. All definitions use general.el
     "f d" 'dired-jump-other-window
     "f y" 'er-copy-file-name-to-clipboard
 
+    ;; Projectile
+    "p f f" 'projectile-find-file
+    "p f r" 'projectile-recentf
+    "p d" 'projectile-find-dir
+    "p k" 'projectile-kill-buffers
+    "p s" 'projectile-switch-project
+    "p o" 'projectile-switch-open-project
+    "p r" 'projectile-replace
+
     ;; Search
     "/" 'helm-swoop
     "s a f" 'helm-ag-r-current-file
     "s a g" 'helm-ag-r-from-git-repo 
+    "s d" 'rg-dwim
+    "s p" 'rg-project
+    "s r" 'rg
+    "s t" 'rg-literal
+    "s l" 'rg-list-searches
 
     ;; toggles
     "t f" 'auto-fill-mode
@@ -953,4 +998,10 @@ indeed in practise.
 (general-define-key
  :keymaps '(normal)
  "Q" 'delete-window)
+#+END_SRC
+*** EVIL Projectile
+Projectile keybindings for evil
+#+BEGIN_SRC emacs-lisp
+
+
 #+END_SRC
