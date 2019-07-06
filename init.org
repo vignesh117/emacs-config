@@ -131,11 +131,11 @@
              expand-region        ; Increase selected region by semantic units
              golden-ratio         ; Automatic resizing windows to golden ratio
              helm                 ; Incremental and narrowing framework
-             helm-ag              ; the silver searcher with helm interface
-             helm-projectile      ; Helm wrapper for projectile
-             helm-rg	       ; Wrapper for rg
-             helm-company         ; Helm interface for company-mode
-             helm-dash            ; Offline documentation using Dash docsets.
+             ;; helm-ag              ; the silver searcher with helm interface
+             ;; helm-projectile      ; Helm wrapper for projectile
+             ;; helm-rg	       ; Wrapper for rg
+             ;; helm-company         ; Helm interface for company-mode
+             ;; helm-dash            ; Offline documentation using Dash docsets.
              hydra		      ; Another nice aboabo package for persisten keys
              magit                ; control Git from Emacs
              markdown-mode        ; Emacs Major mode for Markdown-formatted files
@@ -146,7 +146,7 @@
              org                  ; Outline-based notes management and organizer
              try                  ; Try out Emacs packages
              ag                   ; powerful silver searcher plugib
-             helm-ag-r            ; helm wrapper for ag
+             ;; helm-ag-r            ; helm wrapper for ag
              swiper               ; Search
              multi-term	      ; A terminal application that respects the shell config
              smex                 ; alternative mx
@@ -241,6 +241,11 @@
     ) 
 
     #+END_SRC
+    
+    Other UI refinements
+    #+BEGIN_SRC emacs-lisp
+    (tool-bar-mode -1)
+    #+END_SRC
   
 Powerline for emacs 
 #+BEGIN_SRC emacs-lisp
@@ -252,18 +257,19 @@ Powerline for emacs
     Diminish some modes form modeline
     
     #+BEGIN_SRC emacs-lisp
-        (defmacro safe-diminish (file mode &optional new-name)
-          `(with-eval-after-load ,file
-             (diminish ,mode ,new-name)))
+    (defmacro safe-diminish (file mode &optional new-name)
+      `(with-eval-after-load ,file
+         (diminish ,mode ,new-name)))
 
-        (diminish 'auto-fill-function)
-        (safe-diminish "eldoc" 'eldoc-mode)
-        (safe-diminish "company" 'company-mode)
-        (safe-diminish "undo-tree" 'undo-tree-mode)
-        (safe-diminish "flyspell" 'flyspell-mode)
-        (safe-diminish "helm-mode" 'helm-mode)
-        (safe-diminish "evil-org" 'evil-org-mode) 
-        (safe-diminish "paredit" 'paredit-mode "()") 
+    (diminish 'auto-fill-function)
+    (safe-diminish "eldoc" 'eldoc-mode)
+    (safe-diminish "company" 'company-mode)
+    (safe-diminish "undo-tree" 'undo-tree-mode)
+    (safe-diminish "flyspell" 'flyspell-mode)
+    ;; (safe-diminish "helm-mode" 'helm-mode)
+    (safe-diminish "ivy-mode" 'ivy-mode)
+    (safe-diminish "evil-org" 'evil-org-mode) 
+    (safe-diminish "paredit" 'paredit-mode "()") 
     #+END_SRC
 *** Default packages
     Enable several packages by default. These are typically used
@@ -321,11 +327,18 @@ Powerline for emacs
     =fly-spell-correct= [[https://github.com/d12frosted/flyspell-correct][flyspell-correct]] via helm
 
     #+BEGIN_SRC emacs-lisp
-     (use-package flyspell-correct-helm
-       :ensure t
-       :bind ("C-;" . flyspell-correct-wrapper)
-       :init
-       (setq flyspell-correct-interface #'flyspell-correct-helm))
+    ;; (use-package flyspell-correct-helm
+    ;;   :ensure t
+    ;;   :bind ("C-;" . flyspell-correct-wrapper)
+    ;;   :init
+    ;;   (setq flyspell-correct-interface #'flyspell-correct-helm))
+    ;; Flyspell correct via ivy
+
+    (use-package flyspell-correct-ivy
+      :ensure t
+      :bind ("C-;" . flyspell-correct-wrapper)
+      :init
+      (setq flyspell-correct-interface #'flyspell-correct-ivy))
     #+END_SRC
 *** Windowing
     Ace-window mode provides comprehensive functions and keybindings
@@ -343,22 +356,50 @@ Powerline for emacs
 *** Helm
     Helm
     #+BEGIN_SRC emacs-lisp
-     (use-package helm
-       :ensure t
-       :config
-       (setq helm-split-window-in-side-p t
-             helm-M-x-fuzzy-match t
-             helm-buffers-fuzzy-matching t
-             helm-recentf-fuzzy-match t
-             helm-move-to-line-cycle-in-source t)
-       :bind  (("M-<f5>" . helm-find-files)
-              ([f10] . helm-buffers-list)
-              ([S-f10] . helm-recentf))
-       )
-     (helm-mode 1)
-     (helm-adaptive-mode 1)
+    ;; (use-package helm
+    ;;   :ensure t
+    ;;   :config
+    ;;   (setq helm-split-window-in-side-p t
+    ;;         helm-M-x-fuzzy-match t
+    ;;         helm-buffers-fuzzy-matching t
+    ;;         helm-recentf-fuzzy-match t
+    ;;         helm-move-to-line-cycle-in-source t)
+    ;;   :bind  (("M-<f5>" . helm-find-files)
+    ;;          ([f10] . helm-buffers-list)
+    ;;          ([S-f10] . helm-recentf))
+    ;;   )
+    ;; (helm-mode 1)
+    ;; (helm-adaptive-mode 1)
 
     #+END_SRC 
+*** Ivy
+Light weight alternative to helm
+#+BEGIN_SRC emacs-lisp 
+(use-package ivy :ensure t
+  :diminish (ivy-mode . "")
+  :bind
+  (:map ivy-mode-map
+   ("C-'" . ivy-avy))
+  :config
+  (ivy-mode 1)
+  ;; add ‘recentf-mode’ and bookmarks to ‘ivy-switch-buffer’.
+  (setq ivy-use-virtual-buffers t)
+  ;; number of result lines to display
+  (setq ivy-height 10)
+  ;; does not count candidates
+  (setq ivy-count-format "")
+  ;; no regexp by default
+  (setq ivy-initial-inputs-alist nil)
+  ;; configure regexp engine.
+  (setq ivy-re-builders-alist
+	;; allow input not in order
+        '((t   . ivy--regex-ignore-order))))
+#+END_SRC
+*** Counsel
+#+BEGIN_SRC emacs-lisp
+(use-package counsel
+  :ensure t)
+#+END_SRC
 *** Deft mode
 #+BEGIN_SRC emacs-lisp
 (use-package deft
@@ -489,6 +530,7 @@ Powerline for emacs
        (use-package evil-org
          :ensure t
          :after org
+         :defer t
          :config
          (add-hook 'org-mode-hook 'evil-org-mode)
          (add-hook 'evil-org-mode-hook
@@ -499,6 +541,7 @@ Powerline for emacs
        #+BEGIN_SRC emacs-lisp
        (use-package org-ref
          :ensure t
+         :defer t
          :after org
          :config
          (setq bibtex-completion-bibliography "~/Dropbox/bibliography/references_zotero.bib")
@@ -750,7 +793,8 @@ These are evil specific keybindings. All definitions use general.el
      "M-+" 'text-scale-increase
      "M-_" 'text-scale-decrease
      "C-u" 'evil-scroll-up
-     "<f5>" 'helm-mini
+     ;; "<f5>" 'helm-mini
+     "<f5>" 'ivy-switch-buffer
      "C-M-o" 'hydra-window/body
      "<f6>" 'deadgrep
      )
@@ -777,7 +821,7 @@ These are evil specific keybindings. All definitions use general.el
     ;; Buffer configurations
     "b d" 'kill-this-buffer			;Kills without asking
     "b k" 'kill-buffer-and-window
-    "b b" 'helm-buffers-list
+    "b b" 'ivy-switch-buffer
     "[ [" 'previous-buffer
     "] ]" 'next-buffer
 
@@ -785,8 +829,10 @@ These are evil specific keybindings. All definitions use general.el
     "a d" 'deer
 
     ;; File management
-    "f f" 'helm-find-files
-    "f r" 'helm-recentf
+    ;; "f f" 'helm-find-files
+    ;; "f r" 'helm-recentf
+    "f f" 'counsel-find-file
+    "f r" 'counsel-recentf
     "f d" 'dired-jump-other-window
     "f y" 'er-copy-file-name-to-clipboard
 
@@ -800,9 +846,11 @@ These are evil specific keybindings. All definitions use general.el
     "p r" 'projectile-replace
 
     ;; Search
-    "/" 'helm-swoop
-    "s a f" 'helm-ag-r-current-file
-    "s a g" 'helm-ag-r-from-git-repo 
+    ;; "/" 'helm-swoop
+    "/" 'swiper
+    ;; "s a f" 'helm-ag-r-current-file
+    "s a f" 'counsel-ag
+    ;; "s a g" 'helm-ag-r-from-git-repo 
     "s d" 'rg-dwim
     "s p" 'rg-project
     "s r" 'rg
@@ -816,7 +864,8 @@ These are evil specific keybindings. All definitions use general.el
     "q q" 'save-buffers-kill-emacs
 
     ;; Register bindings
-    "r y" 'helm-show-kill-ring
+    ;; "r y" 'helm-show-kill-ring
+    "r y" 'counsel-yank-pop
     )
     #+END_SRC
 *** EVIL python
@@ -840,7 +889,8 @@ Spacemacs like config for python
  "g d" 'anaconda-mode-find-definitions
  "g a" 'anaconda-mode-find-assignments
  "g r" 'anaconda-mode-find-references-other-window
- "g l" 'helm-imenu
+ ;; "g l" 'helm-imenu
+ "g l" 'counsel-imenu
  
  ;; Flycheck error navigation
  "e n" 'flycheck-next-error 
