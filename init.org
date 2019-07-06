@@ -692,6 +692,13 @@ amazingly well with evil. Let us first start by enabling evil mode
    ;;   :defer t
    ;;   :after org)
    #+END_SRC
+4. Evil-Magit
+   Evil integration with =Magit=
+   #+BEGIN_SRC emacs-lisp
+   (use-package evil-magit
+     :ensure t
+     :after (evil magit))
+   #+END_SRC
 *** general
 #+BEGIN_SRC emacs-lisp
 (use-package general
