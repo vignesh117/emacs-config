@@ -110,26 +110,20 @@
    #+BEGIN_SRC emacs-lisp
    (let* ((package--builtins nil)
           (packages
-           '(auto-compile         ; automatically compile Emacs Lisp libraries
-             rg		       ; An even faster search optinon compared to ag 
-             use-package          ; Great package manager with nifty features
-             undo-tree            ; Neat undo
-             sublime-themes       ; Heavily inspired themes from sublime text
-             gruvbox-theme	       ;Another inspirational theme 
-             doom-themes	       ;Another amazing theme
-             deadgrep	       ; Powerful grep 
-             powerline	       ; Powerline for emacs
-             goto-chg             ; Required by evil
-             evil                 ; Basic vim emulation 
-             evil-nerd-commenter  ; Commenting system that goes with evil
-             projectile	       ; Project management
-             ranger	       ; Amazing file manager
-             sr-speedbar	       ; VIM-like tagbar and file list
+           '(ag                   ; powerful silver searcher plugib
+             auto-compile         ; automatically compile Emacs Lisp libraries
              company              ; Modular text completion framework
+             deadgrep	       ; Powerful grep 
              define-word          ; display the definition of word at point
+             doom-themes	       ;Another amazing theme
+             dracula-theme	       ; Theme
              diminish             ; Diminished modes from modeline
              expand-region        ; Increase selected region by semantic units
+             evil                 ; Basic vim emulation 
+             evil-nerd-commenter  ; Commenting system that goes with evil
+             goto-chg             ; Required by evil
              golden-ratio         ; Automatic resizing windows to golden ratio
+             gruvbox-theme	       ;Another inspirational theme 
              helm                 ; Incremental and narrowing framework
              ;; helm-ag              ; the silver searcher with helm interface
              ;; helm-projectile      ; Helm wrapper for projectile
@@ -141,17 +135,25 @@
              markdown-mode        ; Emacs Major mode for Markdown-formatted files
              matlab-mode          ; MATLAB integration with Emacs
              multiple-cursors     ; Multiple cursors for Emacs
-             projectile	       ; Project management
-             yasnippet            ; Superb template completion framework
-             org                  ; Outline-based notes management and organizer
-             try                  ; Try out Emacs packages
-             ag                   ; powerful silver searcher plugib
-             ;; helm-ag-r            ; helm wrapper for ag
-             swiper               ; Search
              multi-term	      ; A terminal application that respects the shell config
-             smex                 ; alternative mx
+             org                  ; Outline-based notes management and organizer
+             projectile	       ; Project management
+             powerline	       ; Powerline for emacs
+             projectile	       ; Project management
+             ranger	       ; Amazing file manager
              realgud              ; great debugging framework
-             which-key)))         ; Display available keybindings in popup
+             rg		       ; An even faster search optinon compared to ag 
+             smex                 ; alternative mx
+             sr-speedbar	       ; VIM-like tagbar and file list
+             sublime-themes       ; Heavily inspired themes from sublime text
+             swiper               ; Search
+             try                  ; Try out Emacs packages
+             use-package          ; Great package manager with nifty features
+             which-key
+             undo-tree            ; Neat undo
+             yasnippet            ; Superb template completion framework
+             ;; helm-ag-r            ; helm wrapper for ag
+             )))         ; Display available keybindings in popup
      (ignore-errors ;; This package is only relevant for Mac OS X.
        (when (memq window-system '(mac ns))
          (push 'exec-path-from-shell packages)
