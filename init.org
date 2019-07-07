@@ -419,11 +419,15 @@ Light weight alternative to helm
       :after (python anaconda)
       :ensure t)
 
+    (use-package pyvenv
+      :ensure t)
+
     (use-package anaconda-mode
       :ensure t
       :after (python)
       :config
-      (setq python-shell-interpreter "/Users/vigneshganapathiraman/anaconda3/bin/python")
+      ;; (setq python-shell-interpreter "/Users/vigneshganapathiraman/anaconda3/bin/python")
+      (setq python-shell-interpreter "python")
       (defun vig/python-shell-send-line ()
         "send the current line to python repl"
         (interactive)
@@ -457,6 +461,7 @@ Light weight alternative to helm
                   (anaconda-eldoc-mode)
                   ;; (yas-minor-mode)
                   ;; (yas-reload-all)
+                  (pyvenv-mode)
                   (flycheck-mode)))
       ;; (add-to-list 'company-backends #'company-anaconda)
       (eval-after-load "company"
