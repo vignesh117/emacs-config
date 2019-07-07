@@ -200,10 +200,10 @@
    #+END_SRC
 *** Eye candy
     #+BEGIN_SRC emacs-lisp
-        ;; (load-theme 'whiteboard t)
-        ;; (load-theme 'gruvbox-dark-medium t)			;sublime based theme
         (load-theme 'doom-one t)
-        ;; (set-frame-font "Fira Code 12" nil t)
+        (set-face-attribute 'default nil :height 120)
+
+        ;; (set-frame-font "Fira Code 12.0" nil t)
         (use-package doom-modeline
               :ensure t
               :hook (after-init . doom-modeline-mode)
@@ -273,7 +273,7 @@ Powerline for emacs
     (safe-diminish "evil-org" 'evil-org-mode) 
     (safe-diminish "paredit" 'paredit-mode "()") 
     #+END_SRC
-*** Default packages
+*** Default package config (mostly setting global modes)
     Enable several packages by default. These are typically used
     throughout the config on all the major modes.
     #+BEGIN_SRC emacs-lisp
@@ -297,7 +297,6 @@ Powerline for emacs
           company-selection-wrap-around t)  ;wrapping around list of selections when scrolling
 
     ;; got this from https://www.reddit.com/r/emacs/comments/3r9fic/best_practicestip_for_companymode_andor_yasnippet/
-
     (setq company-transformers '(company-sort-by-occurrence))
 
     ;; Add yasnippet support for all company backends
@@ -342,7 +341,7 @@ Powerline for emacs
       :init
       (setq flyspell-correct-interface #'flyspell-correct-ivy))
     #+END_SRC
-*** Windowing
+*** Window navigation
     Ace-window mode provides comprehensive functions and keybindings
     to move and manipulate windows.
     #+BEGIN_SRC emacs-lisp
@@ -428,7 +427,6 @@ Light weight alternative to helm
       :ensure t
       :after (python)
       :config
-      ;; (setq python-shell-interpreter "/Users/vigneshganapathiraman/anaconda3/bin/python")
       (setq python-shell-interpreter "python")
       (defun vig/python-shell-send-line ()
         "send the current line to python repl"
@@ -554,6 +552,13 @@ Light weight alternative to helm
          (setq bibtex-completion-bibliography "~/Dropbox/bibliography/references_zotero.bib")
          )
        #+END_SRC
+    5. Org pandoc : conversion between several formats via org-export
+       #+BEGIN_SRC emacs-lisp 
+       (use-package ox-pandoc
+         :ensure t
+         :after org
+         :defer t)
+       #+END_SRC
 **** Org mode and latex 
 1. Make org latex export use latexmk while exporting documents to pdf 
    #+BEGIN_SRC emacs-lisp
@@ -660,7 +665,8 @@ Light weight alternative to helm
 
 *** ESS
 ESS (/Emacs speaks statistics/) is a comprehensive package for using statistcs related packagse in
-emacs. I mostly use it to interact with R and write R code. 
+emacs. I mostly use it to interact with R and write R code. However,
+recently I'm also using it to program in ~julia~. 
 #+BEGIN_SRC emacs-lisp
 (use-package ess
   :ensure t
