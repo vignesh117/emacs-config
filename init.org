@@ -110,42 +110,50 @@
    #+BEGIN_SRC emacs-lisp
    (let* ((package--builtins nil)
           (packages
-           '(auto-compile         ; automatically compile Emacs Lisp libraries
-             use-package          ; Great package manager with nifty features
-             undo-tree            ; Neat undo
-             sublime-themes       ; Heavily inspired themes from sublime text
-             gruvbox-theme	       ;Another inspirational theme 
-             doom-themes	       ;Another amazing theme
-             powerline	       ; Powerline for emacs
-             goto-chg             ; Required by evil
-             evil                 ; Basic vim emulation 
-             evil-nerd-commenter  ; Commenting system that goes with evil
-             ranger	       ; Amazing file manager
-             sr-speedbar	       ; VIM-like tagbar and file list
+           '(ag                   ; powerful silver searcher plugib
+             auto-compile         ; automatically compile Emacs Lisp libraries
              company              ; Modular text completion framework
+             deadgrep	       ; Powerful grep 
              define-word          ; display the definition of word at point
+             doom-themes	       ;Another amazing theme
+             dracula-theme	       ; Theme
              diminish             ; Diminished modes from modeline
              expand-region        ; Increase selected region by semantic units
+             evil                 ; Basic vim emulation 
+             evil-nerd-commenter  ; Commenting system that goes with evil
+             goto-chg             ; Required by evil
              golden-ratio         ; Automatic resizing windows to golden ratio
+             gruvbox-theme	       ;Another inspirational theme 
              helm                 ; Incremental and narrowing framework
-             helm-ag              ; the silver searcher with helm interface
-             helm-company         ; Helm interface for company-mode
-             helm-dash            ; Offline documentation using Dash docsets.
+             ;; helm-ag              ; the silver searcher with helm interface
+             ;; helm-projectile      ; Helm wrapper for projectile
+             ;; helm-rg	       ; Wrapper for rg
+             ;; helm-company         ; Helm interface for company-mode
+             ;; helm-dash            ; Offline documentation using Dash docsets.
              hydra		      ; Another nice aboabo package for persisten keys
              magit                ; control Git from Emacs
              markdown-mode        ; Emacs Major mode for Markdown-formatted files
              matlab-mode          ; MATLAB integration with Emacs
              multiple-cursors     ; Multiple cursors for Emacs
-             yasnippet            ; Superb template completion framework
-             org                  ; Outline-based notes management and organizer
-             try                  ; Try out Emacs packages
-             ag                   ; powerful silver searcher plugib
-             helm-ag-r            ; helm wrapper for ag
-             swiper               ; Search
              multi-term	      ; A terminal application that respects the shell config
-             smex                 ; alternative mx
+             org                  ; Outline-based notes management and organizer
+             projectile	       ; Project management
+             powerline	       ; Powerline for emacs
+             projectile	       ; Project management
+             ranger	       ; Amazing file manager
              realgud              ; great debugging framework
-             which-key)))         ; Display available keybindings in popup
+             rg		       ; An even faster search optinon compared to ag 
+             smex                 ; alternative mx
+             sr-speedbar	       ; VIM-like tagbar and file list
+             sublime-themes       ; Heavily inspired themes from sublime text
+             swiper               ; Search
+             try                  ; Try out Emacs packages
+             use-package          ; Great package manager with nifty features
+             which-key
+             undo-tree            ; Neat undo
+             yasnippet            ; Superb template completion framework
+             ;; helm-ag-r            ; helm wrapper for ag
+             )))         ; Display available keybindings in popup
      (ignore-errors ;; This package is only relevant for Mac OS X.
        (when (memq window-system '(mac ns))
          (push 'exec-path-from-shell packages)
@@ -188,14 +196,14 @@
    
    Start emacs-server
    #+BEGIN_SRC emacs-lisp
-   (server-start)
+   ;; (server-start)
    #+END_SRC
 *** Eye candy
     #+BEGIN_SRC emacs-lisp
-        ;; (load-theme 'whiteboard t)
-        ;; (load-theme 'gruvbox-dark-medium t)			;sublime based theme
-        (load-theme 'doom-one t)
-        (set-frame-font "Fira Code 12" nil t)
+        (load-theme 'doom-dracula t)
+        ;; (set-face-attribute 'default nil :height 120)
+
+        (set-frame-font "Fira Code 14" nil t)
         (use-package doom-modeline
               :ensure t
               :hook (after-init . doom-modeline-mode)
@@ -235,6 +243,11 @@
     ) 
 
     #+END_SRC
+    
+    Other UI refinements
+    #+BEGIN_SRC emacs-lisp
+    (tool-bar-mode -1)
+    #+END_SRC
   
 Powerline for emacs 
 #+BEGIN_SRC emacs-lisp
@@ -246,41 +259,123 @@ Powerline for emacs
     Diminish some modes form modeline
     
     #+BEGIN_SRC emacs-lisp
-        (defmacro safe-diminish (file mode &optional new-name)
-          `(with-eval-after-load ,file
-             (diminish ,mode ,new-name)))
+    (defmacro safe-diminish (file mode &optional new-name)
+      `(with-eval-after-load ,file
+         (diminish ,mode ,new-name)))
 
-        (diminish 'auto-fill-function)
-        (safe-diminish "eldoc" 'eldoc-mode)
-        (safe-diminish "company" 'company-mode)
-        (safe-diminish "undo-tree" 'undo-tree-mode)
-        (safe-diminish "flyspell" 'flyspell-mode)
-        (safe-diminish "helm-mode" 'helm-mode)
-        (safe-diminish "evil-org" 'evil-org-mode) 
-        (safe-diminish "paredit" 'paredit-mode "()") 
+    (diminish 'auto-fill-function)
+    (safe-diminish "eldoc" 'eldoc-mode)
+    (safe-diminish "company" 'company-mode)
+    (safe-diminish "undo-tree" 'undo-tree-mode)
+    (safe-diminish "flyspell" 'flyspell-mode)
+    ;; (safe-diminish "helm-mode" 'helm-mode)
+    (safe-diminish "ivy-mode" 'ivy-mode)
+    (safe-diminish "evil-org" 'evil-org-mode) 
+    (safe-diminish "paredit" 'paredit-mode "()") 
     #+END_SRC
-*** Default packages
+*** Default package config (mostly setting global modes)
     Enable several packages by default. These are typically used
     throughout the config on all the major modes.
     #+BEGIN_SRC emacs-lisp
-     (dolist (mode
-              '(abbrev-mode                  ; E.g. sopl -> System.out.println
-                column-number-mode           ; Show column number in mode line
-                delete-selection-mode        ; Replace selected text
-                dirtrack-mode                ; directory tracking in *shell*
-                ;; global-company-mode          ; Auto-completion everywhere
-                show-paren-mode              ; Highlight matching parentheses
-                which-key-mode))             ; Available keybindings in popup
-       (funcall mode 1))
+    (dolist (mode
+             '(abbrev-mode                  ; E.g. sopl -> System.out.println
+               column-number-mode           ; Show column number in mode line
+               delete-selection-mode        ; Replace selected text
+               dirtrack-mode                ; directory tracking in *shell*
+               global-company-mode          ; Auto-completion everywhere
+               projectile-mode		; Global projectile mode
+               projectile-mode		  ; Global projectile mode
+               show-paren-mode              ; Highlight matching parentheses
+               which-key-mode))             ; Available keybindings in popup
+      (funcall mode 1)
+      (tooltip-mode -1))
     #+END_SRC
     
     Basic company mode config
     #+BEGIN_SRC emacs-lisp
-    (setq company-idle-delay 0
-          company-minimum-prefix-length 3
-          company-selection-wrap-around t)  ;wrapping around list of selections when scrolling
+    ;; (setq company-minimum-prefix-length 3
+    ;;       company-selection-wrap-around t)  ;wrapping around list of selections when scrolling
+    ;; (setq company-selection-wrap-around t)
+    ;; (setq company-dabbrev-downcase 0)
+    ;; (setq company-idle-delay nil)
+
+    ;;  (global-set-key "\t" 'company-complete-common)
+    ;; ;; got this from https://www.reddit.com/r/emacs/comments/3r9fic/best_practicestip_for_companymode_andor_yasnippet/
+    ;; ;; (setq company-transformers '(company-sort-by-occurrence))
+
+    ;; ;; Add yasnippet support for all company backends
+    ;; ;; https://github.com/syl20bnr/spacemacs/pull/179
+    ;; ;; (defvar company-mode/enable-yas t "Enable yasnippet for all backends.")
+
+    ;; (defun company-mode/backend-with-yas (backend)
+    ;;   (if (or (not company-mode/enable-yas) (and (listp backend)    (member 'company-yasnippet backend)))
+    ;;   backend
+    ;; (append (if (consp backend) backend (list backend))
+    ;;         '(:with company-yasnippet))))
+
+    ;; (setq company-backends (mapcar #'company-mode/backend-with-yas company-backends))
+
+
 
     #+END_SRC
+    
+    Disabling suggestions automatically by company mode 
+    #+BEGIN_SRC emacs-lisp
+    ;;; Prevent suggestions from being triggered automatically. In particular,
+     ;;; this makes it so that:
+     ;;; - TAB will always complete the current selection.
+     ;;; - RET will only complete the current selection if the user has explicitly
+     ;;;   interacted with Company.
+     ;;; - SPC will never complete the current selection.
+     ;;;
+     ;;; Based on:
+     ;;; - https://github.com/company-mode/company-mode/issues/530#issuecomment-226566961
+     ;;; - https://emacs.stackexchange.com/a/13290/12534
+     ;;; - http://stackoverflow.com/a/22863701/3538165
+     ;;;
+     ;;; See also:
+     ;;; - https://emacs.stackexchange.com/a/24800/12534
+     ;;; - https://emacs.stackexchange.com/q/27459/12534
+
+     ;; <return> is for windowed Emacs; RET is for terminal Emacs
+     ;; (dolist (key '("<return>" "RET"))
+     ;;   ;; Here we are using an advanced feature of define-key that lets
+     ;;   ;; us pass an "extended menu item" instead of an interactive
+     ;;   ;; function. Doing this allows RET to regain its usual
+     ;;   ;; functionality when the user has not explicitly interacted with
+     ;;   ;; Company.
+     ;;   (define-key company-active-map (kbd key)
+     ;;     `(menu-item nil company-complete
+     ;;                 :filter ,(lambda (cmd)
+     ;;                            (when (company-explicit-action-p)
+     ;;                              cmd)))))
+     ;; (define-key company-active-map (kbd "TAB") #'company-complete-selection)
+     ;; (define-key company-active-map (kbd "SPC") nil)
+
+     ;; Company appears to override the above keymap based on company-auto-complete-chars.
+     ;; Turning it off ensures we have full control.
+     (setq company-auto-complete-chars nil)
+    #+END_SRC
+*** Fixing scrolling issue in emacs
+Fix coming from the following stackoverflow post https://stackoverflow.com/questions/3631220/fix-to-get-smooth-scrolling-in-emacs
+#+BEGIN_SRC emacs-lisp
+  ;; scroll one line at a time (less "jumpy" than defaults)
+  ;; (setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ; one line at a time
+  ;; (setq mouse-wheel-progressive-speed nil)            ; don't accelerate scrolling
+  ;; (setq-default smooth-scroll-margin 0)
+  ;; (setq scroll-step 1
+  ;;       scroll-margin 1
+  ;;       scroll-conservatively 100000)
+
+  ;; (use-package pager
+  ;;   :ensure t)
+
+  ;; (use-package pager-default-keybindings
+  ;;   :ensure t)
+  ;; (require 'pager-default-keybindings)
+
+
+#+END_SRC
 ** Modes
    Now we write down language specific (python, latex, org, etc.) or
    feature specific (spelling, autocompletion etc.) configuration
@@ -298,13 +393,20 @@ Powerline for emacs
     =fly-spell-correct= [[https://github.com/d12frosted/flyspell-correct][flyspell-correct]] via helm
 
     #+BEGIN_SRC emacs-lisp
-     (use-package flyspell-correct-helm
-       :ensure t
-       :bind ("C-;" . flyspell-correct-wrapper)
-       :init
-       (setq flyspell-correct-interface #'flyspell-correct-helm))
+    ;; (use-package flyspell-correct-helm
+    ;;   :ensure t
+    ;;   :bind ("C-;" . flyspell-correct-wrapper)
+    ;;   :init
+    ;;   (setq flyspell-correct-interface #'flyspell-correct-helm))
+    ;; Flyspell correct via ivy
+
+    (use-package flyspell-correct-ivy
+      :ensure t
+      :bind ("C-;" . flyspell-correct-wrapper)
+      :init
+      (setq flyspell-correct-interface #'flyspell-correct-ivy))
     #+END_SRC
-*** Windowing
+*** Window navigation
     Ace-window mode provides comprehensive functions and keybindings
     to move and manipulate windows.
     #+BEGIN_SRC emacs-lisp
@@ -320,22 +422,50 @@ Powerline for emacs
 *** Helm
     Helm
     #+BEGIN_SRC emacs-lisp
-     (use-package helm
-       :ensure t
-       :config
-       (setq helm-split-window-in-side-p t
-             helm-M-x-fuzzy-match t
-             helm-buffers-fuzzy-matching t
-             helm-recentf-fuzzy-match t
-             helm-move-to-line-cycle-in-source t)
-       :bind  (("M-<f5>" . helm-find-files)
-              ([f10] . helm-buffers-list)
-              ([S-f10] . helm-recentf))
-       )
-     (helm-mode 1)
-     (helm-adaptive-mode 1)
+    ;; (use-package helm
+    ;;   :ensure t
+    ;;   :config
+    ;;   (setq helm-split-window-in-side-p t
+    ;;         helm-M-x-fuzzy-match t
+    ;;         helm-buffers-fuzzy-matching t
+    ;;         helm-recentf-fuzzy-match t
+    ;;         helm-move-to-line-cycle-in-source t)
+    ;;   :bind  (("M-<f5>" . helm-find-files)
+    ;;          ([f10] . helm-buffers-list)
+    ;;          ([S-f10] . helm-recentf))
+    ;;   )
+    ;; (helm-mode 1)
+    ;; (helm-adaptive-mode 1)
 
     #+END_SRC 
+*** Ivy
+Light weight alternative to helm
+#+BEGIN_SRC emacs-lisp 
+(use-package ivy :ensure t
+  :diminish (ivy-mode . "")
+  :bind
+  (:map ivy-mode-map
+   ("C-'" . ivy-avy))
+  :config
+  (ivy-mode 1)
+  ;; add ‘recentf-mode’ and bookmarks to ‘ivy-switch-buffer’.
+  (setq ivy-use-virtual-buffers t)
+  ;; number of result lines to display
+  (setq ivy-height 10)
+  ;; does not count candidates
+  (setq ivy-count-format "")
+  ;; no regexp by default
+  (setq ivy-initial-inputs-alist nil)
+  ;; configure regexp engine.
+  (setq ivy-re-builders-alist
+	;; allow input not in order
+        '((t   . ivy--regex-ignore-order))))
+#+END_SRC
+*** Counsel
+#+BEGIN_SRC emacs-lisp
+(use-package counsel
+  :ensure t)
+#+END_SRC
 *** Deft mode
 #+BEGIN_SRC emacs-lisp
 (use-package deft
@@ -349,70 +479,84 @@ Powerline for emacs
 *** Python mode
     We will use anaconda mode for python.
     #+BEGIN_SRC emacs-lisp
-    (require 'rx)
-    (use-package company-anaconda
-      :requires (rx)
-      :after (python anaconda)
-      :ensure t)
+      (require 'rx)
+      (use-package company-anaconda
+        :requires (rx)
+        :after (python anaconda)
+        :ensure t)
 
-    (use-package anaconda-mode
-      :ensure t
-      :after (python)
-      :config
-      (setq python-shell-interpreter "/Users/vigneshganapathiraman/anaconda3/bin/python")
-      (defun vig/python-shell-send-line ()
-        "send the current line to python repl"
+      (use-package pyvenv
+        :ensure t)
+
+      (use-package anaconda-mode
+        :ensure t
+        :after (python)
+        :config
+        (setq python-shell-interpreter "python")
+        (defun vig/python-shell-send-line ()
+          "send the current line to python repl"
+          (interactive)
+          (python-shell-send-region
+           (progn (forward-visible-line 0) (point))
+           (progn (forward-visible-line 1) (point))
+           )
+          )
+
+
+        (defun vig/python-shell-send-fun-and-move ()
+          "sends the current function to repl and moves one paragraph"
+          (interactive)
+          (progn
+            (python-shell-send-defun)
+            (forward-paragraph))
+          )
+       (defun my-restart-python-console ()
+        "Restart python console before evaluate buffer or region to
+          avoid various uncanny conflicts, like not reloding modules even
+          when they are changed"
         (interactive)
-        (python-shell-send-region
-         (progn (forward-visible-line 0) (point))
-         (progn (forward-visible-line 1) (point))
-         )
+        (kill-process "Python")
+        (kill-buffer "*Python*")
+        (run-python))
+
+        (add-hook 'python-mode-hook
+                  (lambda ()
+                    (anaconda-mode)
+                    (company-mode)
+                    (anaconda-eldoc-mode)
+                    ;; (yas-minor-mode)
+                    ;; (yas-reload-all)
+                    (pyvenv-mode)
+                    (flycheck-mode)))
+        ;; (add-to-list 'company-backends #'company-anaconda)
+        (eval-after-load "company"
+        '(add-to-list 'company-backends '(company-anaconda :with company-capf)))
+        (flycheck-mode)
+        :bind (:map python-mode-map (
+                                     ("M-RET" . 'vig/python-shell-send-line)
+                                     ("<C-return>" . 'vig/python-shell-send-fun-and-move)
+                                     ("<S-return>" . 'python-shell-send-region)
+                                     ))
         )
 
-
-      (defun vig/python-shell-send-fun-and-move ()
-        "sends the current function to repl and moves one paragraph"
-        (interactive)
-        (progn
-          (python-shell-send-defun)
-          (forward-paragraph))
-        )
-     (defun my-restart-python-console ()
-      "Restart python console before evaluate buffer or region to
-        avoid various uncanny conflicts, like not reloding modules even
-        when they are changed"
-      (interactive)
-      (kill-process "Python")
-      (kill-buffer "*Python*")
-      (run-python))
-
-      (add-hook 'python-mode-hook
-                (lambda ()
-                  (anaconda-mode)
-                  (company-mode)
-                  (anaconda-eldoc-mode)
-                  (yas-minor-mode)
-                  (yas-reload-all)
-                  (flycheck-mode)))
-      ;; (add-to-list 'company-backends #'company-anaconda)
-      (eval-after-load "company"
-      '(add-to-list 'company-backends '(company-anaconda :with company-capf)))
-      (flycheck-mode)
-      :bind (:map python-mode-map (
-                                   ("M-RET" . 'vig/python-shell-send-line)
-                                   ("<C-return>" . 'vig/python-shell-send-fun-and-move)
-                                   ("<S-return>" . 'python-shell-send-region)
-                                   ))
+      ;; Enable flycheck mode in python
+      (use-package flycheck
+        :ensure t
+        :defer t
       )
+      (use-package flycheck-pycheckers
+        :ensure t
+        :defer t)
 
-    ;; Enable flycheck mode in python
-    (use-package flycheck
+    #+END_SRC
+    
+    Highlight indent guide mode for highlighting indentation. This is
+    especially useful if we are having long blocks of python code.
+
+    #+BEGIN_SRC emacs-lisp
+    (use-package highlight-indent-guides
       :ensure t
-      :defer t
-    )
-    (use-package flycheck-pycheckers
-      :ensure t
-      :defer t)
+      :after (python))
 
     #+END_SRC
     # Use this awesome package by abo-abo called =lpy-mode=
@@ -427,6 +571,28 @@ Powerline for emacs
     ;; (require 'lpy)
     ;; (add-hook 'python-mode-hook 'lpy-mode)
     #+END_SRC
+    
+    Set the interpreter to the torch mode 
+    #+BEGIN_SRC emacs-lisp
+      (setq python-shell-interpreter "~/anaconda3/envs/torch/bin/python")
+    #+END_SRC
+*** LSP mode 
+#+BEGIN_SRC emacs-lisp
+(use-package lsp-mode
+  :hook ((c-mode
+          c-or-c++-mode
+          ;; python-mode
+          web-mode) . lsp)
+  :commands lsp
+  :config
+  (setq lsp-prefer-flymake nil)
+  (setq lsp-enable-symbol-highlighting nil)
+  (use-package lsp-java :after lsp))
+
+(use-package company-lsp
+  :commands company-lsp
+  :config (setq company-lsp-cache-candidates 'auto))
+#+END_SRC
 *** Org mode
     1. *Babel*: Org babel lets you to write and execute a lot of
        languages within org mode
@@ -449,16 +615,14 @@ Powerline for emacs
            (setq org-src-fontify-natively t
                  ;; org-src-tab-acts-natively t
                  org-confirm-babel-evaluate nil
-                 org-edit-src-content-indentation 0
-                 org-adapt-indentation nil
-                 org-hide-leading-stars 1
-                 org-src-mode 1
+                 org-adapt-indentation t
+                 org-hide-leading-stars nil
                  )
            )
        #+END_SRC
     2. Some default configs while editing files in org mode
        #+BEGIN_SRC emacs-lisp
-       (add-hook 'org-mode-hook 'auto-fill-mode)
+       ;; (add-hook 'org-mode-hook 'auto-fill-mode)
        (add-hook 'org-mode-hook 'org-indent-mode)
        #+END_SRC
     3. Evil-org provides much needed navigation in org mode
@@ -466,6 +630,7 @@ Powerline for emacs
        (use-package evil-org
          :ensure t
          :after org
+         :defer t
          :config
          (add-hook 'org-mode-hook 'evil-org-mode)
          (add-hook 'evil-org-mode-hook
@@ -476,11 +641,39 @@ Powerline for emacs
        #+BEGIN_SRC emacs-lisp
        (use-package org-ref
          :ensure t
+         :defer t
          :after org
          :config
          (setq bibtex-completion-bibliography "~/Dropbox/bibliography/references_zotero.bib")
          )
        #+END_SRC
+    5. Org pandoc : conversion between several formats via org-export
+       #+BEGIN_SRC emacs-lisp 
+       (use-package ox-pandoc
+         :ensure t
+         :defer t)
+       #+END_SRC
+    6. Ox reveal for amazing presentations 
+       #+BEGIN_SRC emacs-lisp
+       (use-package ox-reveal
+         :ensure ox-reveal)
+
+       ;; (setq org-reveal-root "http://cdn.jsdelivr.net/reveal.js/3.0.0/")
+       (setq org-reveal-root "file:////Users/z0041v0/Downloads/reveal.js")
+       (setq org-reveal-mathjax t)
+
+       (use-package htmlize
+         :ensure t)
+       #+END_SRC
+
+       #+RESULTS:
+    7. Org agenda 
+        #+BEGIN_SRC emacs-lisp
+        (setq org-agenda-files
+              '("~/Documents/org/notes.org"))
+
+        #+END_SRC
+
 **** Org mode and latex 
 1. Make org latex export use latexmk while exporting documents to pdf 
    #+BEGIN_SRC emacs-lisp
@@ -587,7 +780,8 @@ Powerline for emacs
 
 *** ESS
 ESS (/Emacs speaks statistics/) is a comprehensive package for using statistcs related packagse in
-emacs. I mostly use it to interact with R and write R code. 
+emacs. I mostly use it to interact with R and write R code. However,
+recently I'm also using it to program in ~julia~. 
 #+BEGIN_SRC emacs-lisp
 (use-package ess
   :ensure t
@@ -625,6 +819,13 @@ amazingly well with evil. Let us first start by enabling evil mode
    ;;   :ensure t
    ;;   :defer t
    ;;   :after org)
+   #+END_SRC
+4. Evil-Magit
+   Evil integration with =Magit=
+   #+BEGIN_SRC emacs-lisp
+   (use-package evil-magit
+     :ensure t
+     :after (evil magit))
    #+END_SRC
 *** general
 #+BEGIN_SRC emacs-lisp
@@ -679,6 +880,12 @@ Hydras for manipulating windows
   ("u" (progn (winner-undo) (setq this-command 'winner-undo)) "undo")
   ("f" nil))
 #+END_SRC
+Frog jump mode for super fast buffer jumping
+#+BEGIN_SRC emacs-lisp
+(use-package frog-jump-buffer
+  :ensure t
+  :bind ("<f10>" . 'frog-jump-buffer))
+#+END_SRC
 *** Utils 
 #+BEGIN_SRC emacs-lisp
 (defun er-copy-file-name-to-clipboard ()
@@ -691,6 +898,60 @@ Hydras for manipulating windows
       (kill-new filename)
       (message "Copied buffer file name '%s' to the clipboard." filename))))
 #+END_SRC
+*** Remote Editing
+1. This is a remote deployment package that can automatically save the project
+   contents on to a remote location on save 
+   #+BEGIN_SRC emacs-lisp
+   (use-package ssh-deploy
+     :ensure t
+     :demand
+     :after hydra
+     :hook ((after-save . ssh-deploy-after-save)
+            (find-file . ssh-deploy-find-file))
+     :config
+     (ssh-deploy-line-mode) ;; If you want mode-line feature
+     (ssh-deploy-add-menu) ;; If you want menu-bar feature
+     (ssh-deploy-hydra "C-c C-z") ;; If you want the hydra feature
+     )
+   #+END_SRC
+*** Smooth scrolling
+We will try to use sublimity mode for smooth scrolling and other
+interesting features
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package sublimity
+  ;;   :ensure t
+  ;;   :config
+  ;;   (setq sublimity-scroll-weight 10
+  ;; 	sublimity-scroll-drift-length 5
+  ;; 	sublimity-attractive-centering-width 110)
+  ;;   )
+#+END_SRC
+*** Centaur tabs
+Nice tabs mode for modern UI switching
+# Config lifted from https://github.com/ianpan870102/.use-package.emacs.d/blob/master/init.el
+#+BEGIN_SRC emacs-lisp
+ (use-package centaur-tabs
+  :ensure t
+  :demand
+  :init (setq centaur-tabs-set-bar 'over)
+  :config
+  (centaur-tabs-mode)
+  (centaur-tabs-headline-match)
+  (setq centaur-tabs-set-modified-marker t
+        centaur-tabs-modified-marker " ● "
+        centaur-tabs-cycle-scope 'tabs
+        centaur-tabs-height 30
+        centaur-tabs-set-icons t
+        centaur-tabs-close-button " × ")
+  (dolist (centaur-face '(centaur-tabs-selected
+                          centaur-tabs-selected-modified
+                          centaur-tabs-unselected
+                          centaur-tabs-unselected-modified))
+    (set-face-attribute centaur-face nil :family "Arial" :height 130))
+  :bind
+  ("C-S-<tab>" . centaur-tabs-backward)
+  ("C-<tab>" . centaur-tabs-forward))
+#+END_SRC
 * Keybindings
 ** Expand region
    #+BEGIN_SRC emacs-lisp
@@ -701,11 +962,8 @@ Hydras for manipulating windows
    #+BEGIN_SRC emacs-lisp
    (global-set-key (kbd "C-:") 'comment-or-uncomment-region-or-line)
    #+END_SRC
-** Utility functions
-   #+BEGIN_SRC emacs-lisp
-    (global-set-key (kbd "<C-tab>") 'vig/tidy)
-   #+END_SRC
 ** EVIL
+*** General Evil bindings
 These are evil specific keybindings. All definitions use general.el 
 
 1. M-x 
@@ -717,11 +975,14 @@ These are evil specific keybindings. All definitions use general.el
      "C-e" 'end-of-line
      "C-a" 'beginning-of-visual-line
      "C-k" 'kill-line
+     "C-y" 'evil-paste-after
      "M-+" 'text-scale-increase
      "M-_" 'text-scale-decrease
      "C-u" 'evil-scroll-up
-     "<f5>" 'helm-mini
+     ;; "<f5>" 'helm-mini
+     "<f5>" 'ivy-switch-buffer
      "C-M-o" 'hydra-window/body
+     "<f6>" 'deadgrep
      )
     #+END_SRC
 
@@ -746,23 +1007,45 @@ These are evil specific keybindings. All definitions use general.el
     ;; Buffer configurations
     "b d" 'kill-this-buffer			;Kills without asking
     "b k" 'kill-buffer-and-window
-    "b b" 'helm-buffers-list
+    "b b" 'ivy-switch-buffer
     "[ [" 'previous-buffer
     "] ]" 'next-buffer
 
     ;; Dired
     "a d" 'deer
+    "a o a" 'org-agenda
 
     ;; File management
-    "f f" 'helm-find-files
-    "f r" 'helm-recentf
+    ;; "f f" 'helm-find-files
+    ;; "f r" 'helm-recentf
+    "f f" 'counsel-find-file
+    "f r" 'counsel-recentf
     "f d" 'dired-jump-other-window
     "f y" 'er-copy-file-name-to-clipboard
 
+    ;; Imenu
+    "i" 'counsel-imenu
+
+    ;; Projectile
+    "p f f" 'projectile-find-file
+    "p f r" 'projectile-recentf
+    "p d" 'projectile-find-dir
+    "p k" 'projectile-kill-buffers
+    "p s" 'projectile-switch-project
+    "p o" 'projectile-switch-open-project
+    "p r" 'projectile-replace
+
     ;; Search
-    "/" 'helm-swoop
-    "s a f" 'helm-ag-r-current-file
-    "s a g" 'helm-ag-r-from-git-repo 
+    ;; "/" 'helm-swoop
+    "/" 'swiper
+    ;; "s a f" 'helm-ag-r-current-file
+    "s a f" 'counsel-ag
+    ;; "s a g" 'helm-ag-r-from-git-repo 
+    "s d" 'rg-dwim
+    "s p" 'rg-project
+    "s r" 'rg
+    "s t" 'rg-literal
+    "s l" 'rg-list-searches
 
     ;; toggles
     "t f" 'auto-fill-mode
@@ -771,7 +1054,10 @@ These are evil specific keybindings. All definitions use general.el
     "q q" 'save-buffers-kill-emacs
 
     ;; Register bindings
-    "r y" 'helm-show-kill-ring
+    ;; "r y" 'helm-show-kill-ring
+    "r y" 'counsel-yank-pop
+
+    "z" 'ssh-deploy-hydra/body
     )
     #+END_SRC
 *** EVIL python
@@ -785,6 +1071,7 @@ Spacemacs like config for python
  ;; python shell
  "p" 'run-python
  "z" 'python-shell-switch-to-shell
+ "?" 'anaconda-mode-show-doc
  "s z" 'python-shell-switch-to-shell
  "s l" 'vig/python-shell-send-line
  "s f" 'vig/python-shell-send-fun-and-move
@@ -795,7 +1082,8 @@ Spacemacs like config for python
  "g d" 'anaconda-mode-find-definitions
  "g a" 'anaconda-mode-find-assignments
  "g r" 'anaconda-mode-find-references-other-window
- "g l" 'helm-imenu
+ ;; "g l" 'helm-imenu
+ "g l" 'counsel-imenu
  
  ;; Flycheck error navigation
  "e n" 'flycheck-next-error 
@@ -941,16 +1229,24 @@ indeed in practise.
  "g g" 'avy-goto-char
  "g w" 'avy-goto-word-0
  "g b" 'avy-goto-char-2-above
+ "g m" 'bookmark-jump
+ "t s" 'sr-speedbar-toggle)
 
+ 
  ;; ;; neotree
  ;; "t t" 'neotree-toggle
  ;; "t c" 'neotree-dir)
  
 
  ;; speedbar
- "t s" 'sr-speedbar-toggle)
 
 (general-define-key
  :keymaps '(normal)
  "Q" 'delete-window)
+#+END_SRC
+*** EVIL Projectile
+Projectile keybindings for evil
+#+BEGIN_SRC emacs-lisp
+
+
 #+END_SRC
