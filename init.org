@@ -182,11 +182,13 @@
    here
 
    #+BEGIN_SRC emacs-lisp
-    (setq-default fill-column 79                    ; Maximum line width
-                  truncate-lines t                  ; Don't fold lines
-                  split-width-threshold 160         ; Split verticly by default
-                  split-height-threshold nil        ; Split verticly by default
-                  auto-fill-function 'do-auto-fill) ; Auto-fill-mode everywhere
+   (setq-default fill-column 79                    ; Maximum line width
+                 truncate-lines t                  ; Don't fold lines
+                 split-width-threshold 160         ; Split verticly by default
+                 split-height-threshold nil        ; Split verticly by default
+                 auto-fill-function 'do-auto-fill  ; Auto-fill-mode everywhere
+                 )	; Relative line numbering by default
+
    #+END_SRC
    
    Don't ask "yes/No" questions, instead ask "y/n" questions
@@ -214,7 +216,7 @@
               (setq doom-modeline-persp-name t)
 
               ;; Whether display `lsp' state or not. Non-nil to display in mode-line.
-              (setq doom-modeline-lsp t)
+              (setq doom-modeline-lsp nil)
 
               ;; Whether display github notifications or not. Requires `ghub` package.
               (setq doom-modeline-github nil)
@@ -605,13 +607,13 @@ Light weight alternative to helm
            'org-babel-load-languages
            '((R . t)
            (emacs-lisp . t)
-	         (matlab . t)
-	         (latex . t)
+                 (matlab . t)
+                 (latex . t)
            (python . t)))
 
            ;; When editing org-files with source-blocks, we want the source
            ;; blocks to be themed as they would in their native mode.
-    
+
            (setq org-src-fontify-natively t
                  ;; org-src-tab-acts-natively t
                  org-confirm-babel-evaluate nil
