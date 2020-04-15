@@ -464,9 +464,23 @@ Light weight alternative to helm
 #+END_SRC
 *** Counsel
 #+BEGIN_SRC emacs-lisp
-(use-package counsel
-  :ensure t)
+    (use-package counsel
+      :ensure t)
+
+
+  (use-package counsel-etags
+    :ensure t
+    :bind (("C-]" . counsel-etags-find-tag-at-point))
+    :init
+    (add-hook 'prog-mode-hook
+          (lambda ()
+            (add-hook 'after-save-hook
+              'counsel-etags-virtual-update-tags 'append 'local)))
+    :config
+    (setq counsel-etags-update-interval 60)
+    (push "build" counsel-etags-ignore-directories))
 #+END_SRC
+
 *** Deft mode
 #+BEGIN_SRC emacs-lisp
 (use-package deft
@@ -586,7 +600,7 @@ Light weight alternative to helm
     
     Set the interpreter to the torch mode 
     #+BEGIN_SRC emacs-lisp
-      (setq python-shell-interpreter "~/anaconda3/envs/torch/bin/python")
+      (setq python-shell-interpreter "python")
     #+END_SRC
 *** LSP mode 
 #+BEGIN_SRC emacs-lisp
@@ -972,6 +986,7 @@ Nice tabs mode for modern UI switching
   ("C-S-<tab>" . centaur-tabs-backward)
   ("C-<tab>" . centaur-tabs-forward))
 #+END_SRC
+
 * Keybindings
 ** Expand region
    #+BEGIN_SRC emacs-lisp
@@ -1201,6 +1216,39 @@ Spacemacs like config for python
 
 
 #+END_SRC
+*** EVIL Julia
+#+BEGIN_SRC emacs-lisp
+  (general-define-key
+   :states '(normal insert)
+   :keymaps 'ess-julia-mode-map
+   :prefix ","
+   :non-normal-prefix "M-S-SPC"
+   ;; python shell
+   "p" 'ess-julia-mode
+   "s z" 'ess-switch-process
+   "s l" 'ess-eval-line
+   "s f" 'ess-eval-function-and-go
+   "s b" 'ess-eval-buffer-and-go
+
+   ;; navigation using anaconda
+   "g d" 'counsel-etags-find-tag-at-point
+   ;; "g l" 'helm-imenu
+   "g l" 'counsel-imenu
+
+   ;; Flycheck error navigation
+   "e n" 'flycheck-next-error 
+   "e p" 'flycheck-previous-error
+   )
+
+  ;; visual mode bindings
+  (general-define-key
+   :states '(visual)
+   :keymaps 'ess-julia-mode-map
+   :prefix ","
+   :non-normal-prefix "M-S-SPC"
+   "s r" 'ess-eval-region)
+#+END_SRC
+
 *** EVIL commenting 
 #+BEGIN_SRC emacs-lisp
 (general-define-key
