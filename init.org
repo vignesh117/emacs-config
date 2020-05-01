@@ -385,54 +385,27 @@ Powerline for emacs
        (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
        (setq ace-ignore-current t)
        :bind ("M-o" . ace-window))
-
-
     #+END_SRC
-*** Ivy
-Light weight alternative to helm
-#+BEGIN_SRC emacs-lisp 
-  ;; (use-package ivy :ensure t
-  ;;   :diminish (ivy-mode . "")
-  ;;   :bind
-  ;;   (:map ivy-mode-map
-  ;;    ("C-'" . ivy-avy))
-  ;;   :config
-  ;;   (ivy-mode 1)
-  ;;   ;; add ‘recentf-mode’ and bookmarks to ‘ivy-switch-buffer’.
-  ;;   (setq ivy-use-virtual-buffers t)
-  ;;   ;; number of result lines to display
-  ;;   (setq ivy-height 10)
-  ;;   ;; does not count candidates
-  ;;   (setq ivy-count-format "")
-  ;;   ;; no regexp by default
-  ;;   (setq ivy-initial-inputs-alist nil)
-  ;;   ;; configure regexp engine.
-  ;;   (setq ivy-re-builders-alist
-  ;; 	;; allow input not in order
-  ;;         '((t   . ivy--regex-ignore-order))))
-#+END_SRC
-*** Counsel
+*** Amx
+This is an alternative to the popular smex mode, which is apparently
+no longer under active development. 
 #+BEGIN_SRC emacs-lisp
-  ;;   (use-package counsel
-  ;;     :ensure t)
-
-
-  ;; (use-package counsel-etags
-  ;;   :ensure t
-  ;;   :bind (("C-]" . counsel-etags-find-tag-at-point))
-  ;;   :init
-  ;;   (add-hook 'prog-mode-hook
-  ;;         (lambda ()
-  ;;           (add-hook 'after-save-hook
-  ;;             'counsel-etags-virtual-update-tags 'append 'local)))
-  ;;   :config
-  ;;   (setq counsel-etags-update-interval 60)
-  ;;   (push "build" counsel-etags-ignore-directories))
+  (use-package amx
+    :ensure t
+    :bind ("s-x" . amx))
 #+END_SRC
 *** Selectrum
 #+BEGIN_SRC emacs-lisp
-  (use-package selectrum
-    :ensure)
+(use-package selectrum
+  :ensure
+  :config
+  (selectrum-mode 1)
+  (use-package prescient
+    :ensure t
+    :config
+    (prescient-persist-mode +1)
+    ))
+
 #+END_SRC
 *** Ctrlf
     This is a new search application. I'm going to try this in place of isearch
@@ -859,7 +832,6 @@ These are evil specific keybindings. All definitions use general.el
     #+BEGIN_SRC emacs-lisp
     (general-define-key
      :keymaps '(normal insert emacs)
-     "M-x" 'smex
      "C-s" 'ctrlf
      "C-e" 'end-of-line
      "C-a" 'beginning-of-visual-line
@@ -883,7 +855,6 @@ These are evil specific keybindings. All definitions use general.el
     :non-normal-prefix "M-SPC"
 
     ;; general
-    "SPC" 'smex
     ;; Window configuations
     "w m" 'delete-other-windows
     "w d" 'delete-window
@@ -1166,7 +1137,8 @@ indeed in practise.
 ** Magit
 #+BEGIN_SRC emacs-lisp
   (use-package magit
-    :bind (("s-S g" . 'magit-status)))
+    :defer
+    :bind (("M-s-g" . 'magit-status)))
 #+END_SRC
 ** Custom global shortcuts
 1. Create new buffer with custom
