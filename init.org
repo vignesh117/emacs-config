@@ -411,10 +411,10 @@ no longer under active development.
     This is a new search application. I'm going to try this in place of isearch
     #+BEGIN_SRC emacs-lisp
       (use-package ctrlf
-	:ensure
-	:init
-	(ctrlf-mode +1)
-	)
+        :ensure
+        :init
+        (ctrlf-mode +1)
+        )
     #+END_SRC
 *** Deft mode
 #+BEGIN_SRC emacs-lisp
@@ -830,21 +830,18 @@ These are evil specific keybindings. All definitions use general.el
 
 1. M-x 
     #+BEGIN_SRC emacs-lisp
-    (general-define-key
-     :keymaps '(normal insert emacs)
-     "C-s" 'ctrlf
-     "C-e" 'end-of-line
-     "C-a" 'beginning-of-visual-line
-     "C-k" 'kill-line
-     "C-y" 'evil-paste-after
-     "M-+" 'text-scale-increase
-     "M-_" 'text-scale-decrease
-     "C-u" 'evil-scroll-up
-     ;; "<f5>" 'helm-mini
-     "<f5>" 'ivy-switch-buffer
-     "C-M-o" 'hydra-window/body
-     "<f6>" 'deadgrep
-     )
+      (general-define-key
+       "C-e" 'end-of-line
+       "C-a" 'beginning-of-visual-line
+       "C-k" 'kill-line
+       "C-y" 'evil-paste-after
+       "M-+" 'text-scale-increase
+       "M--" 'text-scale-decrease
+       ;; "<f5>" 'helm-mini
+       "<f5>" 'ivy-switch-buffer
+       "C-M-o" 'hydra-window/body
+       "<f6>" 'deadgrep
+       )
     #+END_SRC
 
 2. Spacemacs type bindings
