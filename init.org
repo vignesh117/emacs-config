@@ -258,7 +258,6 @@ Powerline for emacs
     (safe-diminish "flyspell" 'flyspell-mode)
     ;; (safe-diminish "helm-mode" 'helm-mode)
     (safe-diminish "ivy-mode" 'ivy-mode)
-    (safe-diminish "evil-org" 'evil-org-mode) 
     (safe-diminish "paredit" 'paredit-mode "()") 
     #+END_SRC
 *** Default package config (mostly setting global modes)
@@ -276,8 +275,6 @@ Powerline for emacs
                  which-key-mode))             ; Available keybindings in popup
         (funcall mode 1)
         (tooltip-mode -1))
-      ;; Search using ctrlf
-      (selectrum-mode +1)
     #+END_SRC
     
     Basic company mode config
@@ -396,16 +393,20 @@ no longer under active development.
 #+END_SRC
 *** Selectrum
 #+BEGIN_SRC emacs-lisp
-(use-package selectrum
-  :ensure
-  :config
-  (selectrum-mode 1)
-  (use-package prescient
-    :ensure t
+  (use-package selectrum
+    :ensure
     :config
-    (prescient-persist-mode +1)
-    ))
 
+    (use-package prescient
+      :ensure t
+      :config
+      (prescient-persist-mode +1)
+      )
+    (use-package selectrum-prescient
+      :ensure
+      :after selectrum)
+    (selectrum-mode 1)
+    (selectrum-prescient-mode 1))
 #+END_SRC
 *** Ctrlf
     This is a new search application. I'm going to try this in place of isearch
@@ -416,6 +417,13 @@ no longer under active development.
         (ctrlf-mode +1)
         )
     #+END_SRC
+*** Dired 
+Some configuration regarding dired and some of it utility packages
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package dired
+  ;;   "configuration here"
+  ;;   )
+#+END_SRC
 *** Deft mode
 #+BEGIN_SRC emacs-lisp
 (use-package deft
@@ -426,19 +434,53 @@ no longer under active development.
         deft-extensions '("md" "org"))
   )
 #+END_SRC
+*** Flycheck
+Flycheck mode is apparently faster and more efficient than flymake
+mode that comes by default with emacs
+#+BEGIN_SRC emacs-lisp
+  (use-package flycheck
+    :ensure
+    :defer)
+#+END_SRC
 *** Python mode
     We will use anaconda mode for python.
     #+BEGIN_SRC emacs-lisp
-                  (use-package pyvenv
-                    :ensure t
-                    :config
-                    (setenv "WORKON_HOME" "/home/vigneshpop/miniconda3/envs"))
-                  (use-package elpy
-                    :ensure t
-                    :after (python)
-                    :config
-                    (elpy-enable)
-                    )
+      (use-package pyvenv
+        :ensure t
+        :config
+        (setenv "WORKON_HOME" "/home/vigneshpop/miniconda3/envs")
+        (pyvenv-workon "torch"))		;Can be changed later
+
+      (use-package elpy
+        :ensure t
+        :after (python)
+        :config
+        (elpy-enable)
+
+        ;; Some recommended configuration options by elpy
+
+                                              ; Use flycheck instead of flymake
+        (when (load "flycheck" t t)
+          (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+          (add-hook 'elpy-mode-hook 'flycheck-mode))
+
+        ;; Use this improved function for function navigation
+        ;; This function additionally searches for the symbol (or function) using rgrep
+        ;; if the function definition using tag information is not found. 
+
+        (defun elpy-goto-definition-or-rgrep ()
+        "Go to the definition of the symbol at point, if found. Otherwise, run `elpy-rgrep-symbol'."
+        (interactive)
+        (ring-insert find-tag-marker-ring (point-marker))
+        (condition-case nil (elpy-goto-definition)
+          (error (elpy-rgrep-symbol
+                  (concat "\\(def\\|class\\)\s" (thing-at-point 'symbol) "(")))))
+
+        :bind (:map python-mode-map
+                   ("M-." . 'elpy-goto-assignment)
+        )
+        )
+
 
     #+END_SRC
     
@@ -516,18 +558,6 @@ no longer under active development.
        ;; (add-hook 'org-mode-hook 'auto-fill-mode)
        (add-hook 'org-mode-hook 'org-indent-mode)
        #+END_SRC
-    3. Evil-org provides much needed navigation in org mode
-       #+BEGIN_SRC emacs-lisp
-       (use-package evil-org
-         :ensure t
-         :after org
-         :defer t
-         :config
-         (add-hook 'org-mode-hook 'evil-org-mode)
-         (add-hook 'evil-org-mode-hook
-                   (lambda ()
-                     (evil-org-set-key-theme))))
-       #+END_SRC
     4. Reference management using org-ref 
        #+BEGIN_SRC emacs-lisp
        (use-package org-ref
@@ -561,7 +591,7 @@ no longer under active development.
     7. Org agenda 
         #+BEGIN_SRC emacs-lisp
         (setq org-agenda-files
-              '("~/Documents/org/notes.org"))
+              '("~/Documents/org/"))
 
         #+END_SRC
 
@@ -693,60 +723,6 @@ recently I'm also using it to program in ~julia~.
 (use-package general
   :ensure t)
 #+END_SRC
-*** Navigation 
-#+BEGIN_SRC emacs-lisp
-  ;; (use-package sentence-navigation
-  ;;   :ensure t
-  ;;   :defer t
-  ;;   :config
-  ;;   (define-key evil-motion-state-map ")" 'sentence-nav-evil-forward)
-  ;;   (define-key evil-motion-state-map "(" 'sentence-nav-evil-backward)
-  ;;   (define-key evil-motion-state-map "g)" 'sentence-nav-evil-forward-end)
-  ;;   (define-key evil-motion-state-map "g(" 'sentence-nav-evil-backward-end)
-  ;;   (define-key evil-outer-text-objects-map "s" 'sentence-nav-evil-a-sentence)
-  ;;   (define-key evil-inner-text-objects-map "s" 'sentence-nav-evil-inner-sentence)) 
-#+END_SRC
-Hydras for manipulating windows 
-#+BEGIN_SRC emacs-lisp
-(defhydra hydra-window (:color red
-                        :columns nil)
-  "window"
-  ("h" windmove-left nil)
-  ("j" windmove-down nil)
-  ("k" windmove-up nil)
-  ("l" windmove-right nil)
-  ("H" hydra-move-splitter-left nil)
-  ("J" hydra-move-splitter-down nil)
-  ("K" hydra-move-splitter-up nil)
-  ("L" hydra-move-splitter-right nil)
-  ("v" (lambda ()
-         (interactive)
-         (split-window-right)
-         (windmove-right))
-       "vert")
-  ("x" (lambda ()
-         (interactive)
-         (split-window-below)
-         (windmove-down))
-       "horz")
-  ("t" transpose-frame "'" :exit t)
-  ("o" delete-other-windows "one" :exit t)
-  ("a" ace-window "ace")
-  ("s" ace-swap-window "swap")
-  ("d" ace-delete-window "del")
-  ("i" ace-maximize-window "ace-one" :exit t)
-  ("b" ido-switch-buffer "buf")
-  ("m" headlong-bookmark-jump "bmk")
-  ("q" nil "cancel")
-  ("u" (progn (winner-undo) (setq this-command 'winner-undo)) "undo")
-  ("f" nil))
-#+END_SRC
-Frog jump mode for super fast buffer jumping
-#+BEGIN_SRC emacs-lisp
-(use-package frog-jump-buffer
-  :ensure t
-  :bind ("<f10>" . 'frog-jump-buffer))
-#+END_SRC
 *** Utils 
 #+BEGIN_SRC emacs-lisp
 (defun er-copy-file-name-to-clipboard ()
@@ -759,22 +735,6 @@ Frog jump mode for super fast buffer jumping
       (kill-new filename)
       (message "Copied buffer file name '%s' to the clipboard." filename))))
 #+END_SRC
-*** Remote Editing
-1. This is a remote deployment package that can automatically save the project
-   contents on to a remote location on save 
-   #+BEGIN_SRC emacs-lisp
-   (use-package ssh-deploy
-     :ensure t
-     :demand
-     :after hydra
-     :hook ((after-save . ssh-deploy-after-save)
-            (find-file . ssh-deploy-find-file))
-     :config
-     (ssh-deploy-line-mode) ;; If you want mode-line feature
-     (ssh-deploy-add-menu) ;; If you want menu-bar feature
-     (ssh-deploy-hydra "C-c C-z") ;; If you want the hydra feature
-     )
-   #+END_SRC
 *** Centaur tabs
 Nice tabs mode for modern UI switching
 # Config lifted from https://github.com/ianpan870102/.use-package.emacs.d/blob/master/init.el
@@ -815,6 +775,28 @@ Nice tabs mode for modern UI switching
       (setq buffer-offer-save t)))
 #+END_SRC
 * Keybindings
+** Basic keybindings
+These are evil specific keybindings. All definitions use general.el 
+
+1. M-x 
+    #+BEGIN_SRC emacs-lisp
+      (general-define-key
+       "C-e" 'end-of-line
+       "C-a" 'beginning-of-visual-line
+       "C-k" 'kill-line
+       "M-+" 'text-scale-increase
+       "M--" 'text-scale-decrease
+       "C-x C-b" 'ibuffer
+       ;; "<f5>" 'helm-mini
+       "C-M-o" 'hydra-window/body
+       "<f6>" 'deadgrep
+       )
+    #+END_SRC
+2. Program mode bindings
+   #+BEGIN_SRC emacs-lisp
+   (define-key prog-mode-map (kbd "C-;") 'comment-line)
+   #+END_SRC
+
 ** Expand region
    #+BEGIN_SRC emacs-lisp
     (global-set-key (kbd "C->") 'er/expand-region)
@@ -824,313 +806,7 @@ Nice tabs mode for modern UI switching
    #+BEGIN_SRC emacs-lisp
    (global-set-key (kbd "C-:") 'comment-or-uncomment-region-or-line)
    #+END_SRC
-** EVIL
-*** General Evil bindings
-These are evil specific keybindings. All definitions use general.el 
 
-1. M-x 
-    #+BEGIN_SRC emacs-lisp
-      (general-define-key
-       "C-e" 'end-of-line
-       "C-a" 'beginning-of-visual-line
-       "C-k" 'kill-line
-       "C-y" 'evil-paste-after
-       "M-+" 'text-scale-increase
-       "M--" 'text-scale-decrease
-       ;; "<f5>" 'helm-mini
-       "<f5>" 'ivy-switch-buffer
-       "C-M-o" 'hydra-window/body
-       "<f6>" 'deadgrep
-       )
-    #+END_SRC
-
-2. Spacemacs type bindings
-    #+BEGIN_SRC emacs-lisp
-    (general-define-key
-    :keymaps '(normal insert emacs)
-    :prefix "SPC"
-    :non-normal-prefix "M-SPC"
-
-    ;; general
-    ;; Window configuations
-    "w m" 'delete-other-windows
-    "w d" 'delete-window
-    "w o" 'ace-window
-    "w h" 'windmove-left
-    "w l" 'windmove-right
-    "w 2" 'split-window-horizontally
-    "w =" 'balance-windows
-
-    ;; Buffer configurations
-    "b d" 'kill-this-buffer			;Kills without asking
-    "b k" 'kill-buffer-and-window
-    "b b" 'ivy-switch-buffer
-    "[ [" 'previous-buffer
-    "] ]" 'next-buffer
-
-    ;; Dired
-    "a d" 'deer
-    "a o a" 'org-agenda
-
-    ;; File management
-    ;; "f f" 'helm-find-files
-    ;; "f r" 'helm-recentf
-    "f f" 'counsel-find-file
-    "f r" 'counsel-recentf
-    "f d" 'dired-jump-other-window
-    "f y" 'er-copy-file-name-to-clipboard
-
-    ;; Imenu
-    "i" 'counsel-imenu
-
-    ;; Projectile
-    "p f f" 'projectile-find-file
-    "p f r" 'projectile-recentf
-    "p d" 'projectile-find-dir
-    "p k" 'projectile-kill-buffers
-    "p s" 'projectile-switch-project
-    "p o" 'projectile-switch-open-project
-    "p r" 'projectile-replace
-
-    ;; Search
-    ;; "/" 'helm-swoop
-    "/" 'swiper
-    ;; "s a f" 'helm-ag-r-current-file
-    "s a f" 'counsel-ag
-    ;; "s a g" 'helm-ag-r-from-git-repo 
-    "s d" 'rg-dwim
-    "s p" 'rg-project
-    "s r" 'rg
-    "s t" 'rg-literal
-    "s l" 'rg-list-searches
-
-    ;; toggles
-    "t f" 'auto-fill-mode
-
-    ;; quit
-    "q q" 'save-buffers-kill-emacs
-
-    ;; Register bindings
-    ;; "r y" 'helm-show-kill-ring
-    "r y" 'counsel-yank-pop
-
-    "z" 'ssh-deploy-hydra/body
-    )
-    #+END_SRC
-*** EVIL python
-Spacemacs like config for python
-#+BEGIN_SRC emacs-lisp
-  (general-define-key
-   :states '(normal insert)
-   :keymaps 'python-mode-map
-   :prefix ","
-   :non-normal-prefix "M-S-SPC"
-   ;; python shell
-   "p" 'run-python
-   "z" 'python-shell-switch-to-shell
-   "?" 'anaconda-mode-show-doc
-   "s z" 'python-shell-switch-to-shell
-   "s l" 'vig/python-shell-send-line
-   "s f" 'vig/python-shell-send-fun-and-move
-   "s b" 'python-shell-send-buffer
-   "s r" 'my-restart-python-console
-
-   ;; navigation using anaconda
-   "g d" 'xref-find-definitions
-   "g a" 'elpy-xref--references
-   ;; "g l" 'helm-imenu
-   "g l" 'counsel-imenu
- 
-   ;; Flycheck error navigation
-   "e n" 'flycheck-next-error 
-   "e p" 'flycheck-previous-error
-   )
- 
-  ;; visual mode bindings
-  (general-define-key
-   :states '(visual)
-   :keymaps 'python-mode-map
-   :prefix ","
-   :non-normal-prefix "M-S-SPC"
-   "s r" 'python-shell-send-region)
-#+END_SRC
-*** EVIL matlab
-#+BEGIN_SRC emacs-lisp
-(general-define-key
- :states '(normal insert visual)
- :keymaps 'matlab-mode-map
- :prefix ","
- :non-normal-prefix "M-S-SPC"
-
- ;; Running 
- "p" 'matlab-shell
- ","  'vig/matlab-shell-send-line
- "r r" 'matlab-shell-run-region
- "r c" 'matlab-shell-run-cell
-
- ;; Commenting
- "i f" 'matlab-indent-function-body
- "i l" 'matlab-indent-line
- )
-#+END_SRC
-*** EVIL org 
-#+BEGIN_SRC emacs-lisp
-(general-define-key
- :states '(normal insert)
- :keymaps 'org-mode-map
- :prefix ","
- :non-normal-prefix "M-S-SPC"
- "e e" 'org-export-dispatch
- "n n" 'org-narrow-to-subtree
- "n w" 'widen
-
- ;; Citations
- "c" 'org-ref-helm-insert-cite-link
- "r" 'org-ref-helm-insert-ref-link)
- #+END_SRC
-*** EVIL latex 
-#+BEGIN_SRC emacs-lisp
-  (general-define-key
-   :states '(normal insert)
-   :keymaps 'LaTeX-mode-map
-   :prefix ","
-   :non-normal-prefix "M-S-SPC"
-
-   ;; Building
-   "," 'TeX-command-master
-   "v" 'TeX-view
-   "." 'LaTeX-mark-environment
-
-   ;; previews
-   "p e" 'preview-environment
-   "p b" 'preview-buffer
-   "p d" 'preview-document
-   "p p" 'preview-at-point
-
-   ;; preview / clear
-   "p c r" 'preview-clearout
-   "p c s" 'preview-clearout-section
-   "p c p" 'preview-clearout-at-point
-
-   ;; inserts
-   "s" 'LaTeX-section
-   "e" 'LaTeX-environment
-   "c" 'LaTeX-close-environment
-
-   ;; citation
-   "r c" 'reftex-citation
-   "r r" 'reftex-reference
-   "r =" 'reftex-toc
-   "r p" 'reftex-citep
-
-   ;; fill
-   "f s" 'LaTeX-fill-section
-   "f p" 'LaTeX-fill-paragraph
-   "f b" 'LaTeX-fill-buffer
-   "f e" 'LaTeX-fill-environment
-   )
-
-  (general-define-key
-   :states '(normal insert)
-   :keymaps 'LaTeX-mode-map
-   "<S-return>" 'LaTeX-insert-item)
-
-
-
-#+END_SRC
-*** EVIL Julia
-#+BEGIN_SRC emacs-lisp
-  (general-define-key
-   :states '(normal insert)
-   :keymaps 'ess-julia-mode-map
-   :prefix ","
-   :non-normal-prefix "M-S-SPC"
-   ;; python shell
-   "p" 'ess-julia-mode
-   "s z" 'ess-switch-process
-   "s l" 'ess-eval-line
-   "s f" 'ess-eval-function-and-go
-   "s b" 'ess-eval-buffer-and-go
-
-   ;; navigation using anaconda
-   "g d" 'counsel-etags-find-tag-at-point
-   ;; "g l" 'helm-imenu
-   "g l" 'counsel-imenu
-
-   ;; Flycheck error navigation
-   "e n" 'flycheck-next-error 
-   "e p" 'flycheck-previous-error
-   )
-
-  ;; visual mode bindings
-  (general-define-key
-   :states '(visual)
-   :keymaps 'ess-julia-mode-map
-   :prefix ","
-   :non-normal-prefix "M-S-SPC"
-   "s r" 'ess-eval-region)
-#+END_SRC
-
-*** EVIL commenting 
-#+BEGIN_SRC emacs-lisp
-(general-define-key
- :keymaps '(normal insert emacs visual)
- :prefix "\\"
- :non-normal-prefix "M-S-\\"
- "l l" 'evilnc-quick-comment-or-uncomment-to-the-line
- "c c" 'evilnc-comment-or-uncomment-lines
- "c p" 'evilnc-comment-or-uncomment-paragraphs
- "c r" 'comment-or-uncomment-region
- "c v" 'evilnc-toggle-invert-comment-line-by-line
-  "."  'evilnc-copy-and-comment-operator)
-#+END_SRC
-*** EVIL multilple cursors
-#+BEGIN_SRC emacs-lisp
-(general-define-key
- :keymaps '(normal)
- :prefix "SPC"
- :non-normal-prefix "M-S-m"
- "m w" 'mc/mark-next-word-like-this
- "m l" 'mc/mark-next-lines
- "m d" 'mc/mark-all-dwim
- "m c"  'mc/add-cursor-on-click)
-
-
-(general-define-key
- :keymaps '(visual emacs insert)
- "M-d" 'mc/mark-next-word-like-this)
-#+END_SRC
-When in visual model (especially after selecting a word using =expand
-region=, we could mark the next occurance of the word by pressing
-=M-d=. 
-*** EVIL Navigation
-Setting up keybindings for the efficient navigation using =avy=
-navigation functions. =avy-goto-char= lets you to navigate to any
-arbitrary word in a buffer by just typing a few keystrokes - very fast
-indeed in practise. 
-#+BEGIN_SRC emacs-lisp
-(general-define-key
- :keymaps '(normal)
- :prefix "SPC"
- :non-normal-prefix "M-s-SPC"
- "g g" 'avy-goto-char
- "g w" 'avy-goto-word-0 
- "g b" 'avy-goto-char-2-above
- "g m" 'bookmark-jump
- "t s" 'sr-speedbar-toggle)
-
- 
- ;; ;; neotree
- ;; "t t" 'neotree-toggle
- ;; "t c" 'neotree-dir)
- 
-
- ;; speedbar
-
-(general-define-key
- :keymaps '(normal)
- "Q" 'delete-window)
-#+END_SRC
 ** Magit
 #+BEGIN_SRC emacs-lisp
   (use-package magit

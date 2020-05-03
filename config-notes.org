@@ -1,0 +1,17 @@
+
+This document shares some notes about the configuration in
+~init.org~. Despite being a literate configuration, I feel that the
+configuration is not nicely laid out. This is more like a cheat sheet
+for my own reference in most cases. 
+
+* Programming mode keybindings
+
+** General programming 
+
+*** Commenting
+| Keybinding | command      | comment                          |
+|------------+--------------+----------------------------------|
+| <C-;>      | Comment line |                                  |
+| <M-;>      | Comment-dwim | Inserts a comment after the line |
+|------------+--------------+----------------------------------|
+
