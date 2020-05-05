@@ -116,6 +116,8 @@
                deadgrep	       ; Powerful grep 
                define-word          ; display the definition of word at point
                doom-themes	       ;Another amazing theme
+               modus-operandi-theme ;Theme by prot
+               modus-vivendi-theme  ;Another theme by prot
                dracula-theme	       ; Theme
                diminish             ; Diminished modes from modeline
                expand-region        ; Increase selected region by semantic units
@@ -184,47 +186,57 @@
    ;; (server-start)
    #+END_SRC
 *** Eye candy
+I play around with different font options and color themes. Currently
+I've settled down with the nice ~modus operandi~ theme by Protesilaos
+Stavrou and the overpass fonts from [[https://overpassfont.org/][here]].
+
     #+BEGIN_SRC emacs-lisp
-        (load-theme 'doom-dracula t)
-        ;; (set-face-attribute 'default nil :height 120)
+          (load-theme 'modus-operandi t)
+          ;; (set-face-attribute 'default nil :height 120)
 
-        (set-frame-font "inconsolata 13" nil t)
-        (use-package doom-modeline
-              :ensure t
-              :hook (after-init . doom-modeline-mode)
-              :config
-              (setq doom-modeline-env-python-executable "python")
+          ;; (set-frame-font "Overpass 13" nil t)
+          (set-face-attribute 'default nil
+                      :family "Overpass Mono Regular"
+                      :height 110
+                      :weight 'normal
+                      :width 'normal)
 
-              ;; Whether display perspective name or not. Non-nil to display in mode-line.
-              (setq doom-modeline-persp-name t)
+          (use-package doom-modeline
+                :ensure t
+                :hook (after-init . doom-modeline-mode)
+                :config
+                (setq doom-modeline-env-python-executable "python")
 
-              ;; Whether display `lsp' state or not. Non-nil to display in mode-line.
-              (setq doom-modeline-lsp nil)
+                ;; Whether display perspective name or not. Non-nil to display in mode-line.
+                (setq doom-modeline-persp-name t)
 
-              ;; Whether display github notifications or not. Requires `ghub` package.
-              (setq doom-modeline-github nil)
-              ;; Whether display minor modes in mode-line or not.
-              (setq doom-modeline-minor-modes nil)
+                ;; Whether display `lsp' state or not. Non-nil to display in mode-line.
+                (setq doom-modeline-lsp nil)
 
-              ;; If non-nil, a word count will be added to the selection-info modeline segment.
-              (setq doom-modeline-enable-word-count nil)
+                ;; Whether display github notifications or not. Requires `ghub` package.
+                (setq doom-modeline-github nil)
+                ;; Whether display minor modes in mode-line or not.
+                (setq doom-modeline-minor-modes nil)
 
-              ;; If non-nil, only display one number for checker information if applicable.
-              (setq doom-modeline-checker-simple-format t)
-              ;; Whether display the icon for major mode. It respects `doom-modeline-icon'.
-              (setq doom-modeline-major-mode-icon t)
+                ;; If non-nil, a word count will be added to the selection-info modeline segment.
+                (setq doom-modeline-enable-word-count nil)
 
-              ;; Whether display color icons for `major-mode'. It respects
-              ;; `doom-modeline-icon' and `all-the-icons-color-icons'.
-              (setq doom-modeline-major-mode-color-icon t)
+                ;; If non-nil, only display one number for checker information if applicable.
+                (setq doom-modeline-checker-simple-format t)
+                ;; Whether display the icon for major mode. It respects `doom-modeline-icon'.
+                (setq doom-modeline-major-mode-icon t)
 
-              ;; Whether display icons for buffer states. It respects `doom-modeline-icon'.
-              (setq doom-modeline-buffer-state-icon t)
+                ;; Whether display color icons for `major-mode'. It respects
+                ;; `doom-modeline-icon' and `all-the-icons-color-icons'.
+                (setq doom-modeline-major-mode-color-icon t)
 
-              ;; Whether display buffer modification icon. It respects `doom-modeline-icon'
-              ;; and `doom-modeline-buffer-state-icon'.
-              (setq doom-modeline-buffer-modification-icon t)
-    ) 
+                ;; Whether display icons for buffer states. It respects `doom-modeline-icon'.
+                (setq doom-modeline-buffer-state-icon t)
+
+                ;; Whether display buffer modification icon. It respects `doom-modeline-icon'
+                ;; and `doom-modeline-buffer-state-icon'.
+                (setq doom-modeline-buffer-modification-icon t)
+      ) 
 
     #+END_SRC
     
