@@ -4,6 +4,17 @@ This document shares some notes about the configuration in
 configuration is not nicely laid out. This is more like a cheat sheet
 for my own reference in most cases. 
 
+* Instructions
+The configuration needs the following to get the full effect
+1. Overpass font from [[https://overpassfont.org/][here]]
+2. Install all the necessary font sets by invoking ~M-x
+   all-the-icons-install-fonts~. This will install font packages such
+   as font-awesome (required by the modeline) and other useful fonts.
+3. Install the following packages using your OS package manager
+   - rg (search utility)
+   - <TO BE UPDATED>
+4. 
+
 * Programming mode keybindings
 
 ** General programming 

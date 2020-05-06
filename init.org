@@ -110,34 +110,32 @@
    #+BEGIN_SRC emacs-lisp
      (let* ((package--builtins nil)
             (packages
-             '(ag                   ; powerful silver searcher plugib
-               auto-compile         ; automatically compile Emacs Lisp libraries
-               company              ; Modular text completion framework
-               deadgrep	       ; Powerful grep 
-               define-word          ; display the definition of word at point
-               doom-themes	       ;Another amazing theme
-               modus-operandi-theme ;Theme by prot
-               modus-vivendi-theme  ;Another theme by prot
-               dracula-theme	       ; Theme
-               diminish             ; Diminished modes from modeline
-               expand-region        ; Increase selected region by semantic units
-               golden-ratio         ; Automatic resizing windows to golden ratio
-               gruvbox-theme	       ;Another inspirational theme 
-               hydra		      ; Another nice aboabo package for persisten keys
-               magit                ; control Git from Emacs
-               markdown-mode        ; Emacs Major mode for Markdown-formatted files
-               matlab-mode          ; MATLAB integration with Emacs
-               multiple-cursors     ; Multiple cursors for Emacs
-               org                  ; Outline-based notes management and organizer
-               powerline	       ; Powerline for emacs
-               ranger	       ; Amazing file manager
-               rg		       ; An even faster search optinon compared to ag 
-               sublime-themes       ; Heavily inspired themes from sublime text
-               try                  ; Try out Emacs packages
-               use-package          ; Great package manager with nifty features
+             '(ag			; powerful silver searcher plugib
+               auto-compile		; automatically compile Emacs Lisp libraries
+               company			; Modular text completion framework
+               deadgrep			; Powerful grep 
+               define-word		; display the definition of word at point
+               doom-themes		;Another amazing theme
+               modus-operandi-theme	;Theme by prot
+               modus-vivendi-theme	;Another theme by prot
+               dracula-theme		; Theme
+               diminish			; Diminished modes from modeline
+               expand-region		; Increase selected region by semantic units
+               golden-ratio		; Automatic resizing windows to golden ratio
+               gruvbox-theme		;Another inspirational theme 
+               hydra			; Another nice aboabo package for persisten keys
+               magit			; control Git from Emacs
+               markdown-mode		; Emacs Major mode for Markdown-formatted files
+               matlab-mode		; MATLAB integration with Emacs
+               multiple-cursors		; Multiple cursors for Emacs
+               org			; Outline-based notes management and organizer
+               powerline		; Powerline for emacs
+               rg			; An even faster search optinon compared to ag 
+               try			; Try out Emacs packages
+               use-package		; Great package manager with nifty features
                which-key
-               undo-tree            ; Neat undo
-               yasnippet            ; Superb template completion framework
+               undo-tree		; Neat undo
+               yasnippet		; Superb template completion framework
                )))         ; Display available keybindings in popup
        (ignore-errors ;; This package is only relevant for Mac OS X.
          (when (memq window-system '(mac ns))
@@ -269,7 +267,6 @@ Powerline for emacs
     (safe-diminish "undo-tree" 'undo-tree-mode)
     (safe-diminish "flyspell" 'flyspell-mode)
     ;; (safe-diminish "helm-mode" 'helm-mode)
-    (safe-diminish "ivy-mode" 'ivy-mode)
     (safe-diminish "paredit" 'paredit-mode "()") 
     #+END_SRC
 *** Default package config (mostly setting global modes)
@@ -371,13 +368,6 @@ Powerline for emacs
     =fly-spell-correct= [[https://github.com/d12frosted/flyspell-correct][flyspell-correct]] via helm
 
     #+BEGIN_SRC emacs-lisp
-    ;; (use-package flyspell-correct-helm
-    ;;   :ensure t
-    ;;   :bind ("C-;" . flyspell-correct-wrapper)
-    ;;   :init
-    ;;   (setq flyspell-correct-interface #'flyspell-correct-helm))
-    ;; Flyspell correct via ivy
-
     (use-package flyspell-correct-ivy
       :ensure t
       :bind ("C-;" . flyspell-correct-wrapper)
@@ -417,8 +407,39 @@ no longer under active development.
     (use-package selectrum-prescient
       :ensure
       :after selectrum)
-    (selectrum-mode 1)
-    (selectrum-prescient-mode 1))
+    (selectrum-mode -1)
+    (selectrum-prescient-mode -1))
+#+END_SRC
+*** Ivy
+#+BEGIN_SRC emacs-lisp
+  (use-package ivy :ensure t
+    :diminish (ivy-mode . "")
+    :bind
+    (:map ivy-mode-map
+     ("C-'" . ivy-avy))
+    :config
+    (use-package ivy-prescient
+      :ensure t
+      :after ivy)
+    (ivy-mode 1)
+    (ivy-prescient-mode 1)
+    ;; add ‘recentf-mode’ and bookmarks to ‘ivy-switch-buffer’.
+    (setq ivy-use-virtual-buffers t)
+    ;; number of result lines to display
+    (setq ivy-height 10)
+    ;; does not count candidates
+    (setq ivy-count-format "")
+    ;; no regexp by default
+    (setq ivy-initial-inputs-alist nil)
+    ;; configure regexp engine.
+    (setq ivy-re-builders-alist
+	  ;; allow input not in order
+	  '((t   . ivy--regex-ignore-order))))
+#+END_SRC
+*** Counsel
+#+BEGIN_SRC emacs-lisp
+  (use-package counsel :ensure t)
+
 #+END_SRC
 *** Ctrlf
     This is a new search application. I'm going to try this in place of isearch
@@ -542,33 +563,37 @@ mode that comes by default with emacs
     1. *Babel*: Org babel lets you to write and execute a lot of
        languages within org mode
        #+BEGIN_SRC emacs-lisp
-       ;; active Babel languages
-       (use-package org
-         :defer t
-         :config
-           (org-babel-do-load-languages
-           'org-babel-load-languages
-           '((R . t)
-           (emacs-lisp . t)
-                 (matlab . t)
-                 (latex . t)
-           (python . t)))
+         ;; active Babel languages
+         (use-package org
+           :defer t
+           :config
+             (org-babel-do-load-languages
+             'org-babel-load-languages
+             '((R . t)
+             (emacs-lisp . t)
+                   (matlab . t)
+                   (latex . t)
+             (python . t))
+             )
 
-           ;; When editing org-files with source-blocks, we want the source
-           ;; blocks to be themed as they would in their native mode.
+             ;; When editing org-files with source-blocks, we want the source
+             ;; blocks to be themed as they would in their native mode.
 
-           (setq org-src-fontify-natively t
-                 ;; org-src-tab-acts-natively t
-                 org-confirm-babel-evaluate nil
-                 org-adapt-indentation t
-                 org-hide-leading-stars nil
-                 )
-           )
+             (setq org-src-fontify-natively t
+                   ;; org-src-tab-acts-natively t
+                   org-confirm-babel-evaluate nil
+                   org-adapt-indentation t
+                   org-hide-leading-stars nil
+                   )
+             )
        #+END_SRC
     2. Some default configs while editing files in org mode
        #+BEGIN_SRC emacs-lisp
        ;; (add-hook 'org-mode-hook 'auto-fill-mode)
-       (add-hook 'org-mode-hook 'org-indent-mode)
+       (use-package org
+         :config
+         (org-indent-mode +1)
+         (auto-fill-mode +1))
        #+END_SRC
     4. Reference management using org-ref 
        #+BEGIN_SRC emacs-lisp
@@ -589,14 +614,17 @@ mode that comes by default with emacs
     6. Ox reveal for amazing presentations 
        #+BEGIN_SRC emacs-lisp
        (use-package ox-reveal
-         :ensure ox-reveal)
+         :ensure 
+         :demand
+         ox-reveal)
 
        ;; (setq org-reveal-root "http://cdn.jsdelivr.net/reveal.js/3.0.0/")
        (setq org-reveal-root "file:////Users/z0041v0/Downloads/reveal.js")
        (setq org-reveal-mathjax t)
 
        (use-package htmlize
-         :ensure t)
+         :ensure t
+         :demand)
        #+END_SRC
 
        #+RESULTS:
@@ -773,6 +801,97 @@ Nice tabs mode for modern UI switching
   ("C-S-<tab>" . centaur-tabs-backward)
   ("C-<tab>" . centaur-tabs-forward))
 #+END_SRC
+*** Multiple cursors
+Setup borrowed from Kaushal Modi's setup
+#+BEGIN_SRC emacs-lisp
+  ;; Time-stamp: <2017-09-20 09:52:55 kmodi>
+
+  ;; Multiple Cursors
+  ;; https://github.com/magnars/multiple-cursors.el
+
+  (use-package multiple-cursors
+    :bind (
+	   ("C-S-c C-S-c" . mc/edit-lines)
+	   ("C->" . mc/mark-next-like-this)
+	   ("C-<" . mc/mark-previous-like-this)
+	   ("C-c C-<" . mc/mark-all-like-this)
+	   ("C-S-<mouse-1>" . mc/add-cursor-on-click))
+    :init
+    (progn
+      ;; Temporary hack to get around bug # 28524 in emacs 26+
+      ;; https://debbugs.gnu.org/cgi/bugreport.cgi?bug=28524
+      (setq mc/mode-line
+	    `(" mc:" (:eval (format ,(propertize "%-2d" 'face 'font-lock-warning-face)
+				    (mc/num-cursors)))))
+
+      (setq mc/list-file (locate-user-emacs-file "mc-lists"))
+
+      ;; The `multiple-cursors-mode-enabled-hook' and
+      ;; `multiple-cursors-mode-disabled-hook' are run in the
+      ;; `multiple-cursors-mode' minor mode definition, but they are not declared
+      ;; (not `defvar'd). So do that first before using `add-hook'.
+      (defvar multiple-cursors-mode-enabled-hook nil
+	"Hook that is run after `multiple-cursors-mode' is enabled.")
+      (defvar multiple-cursors-mode-disabled-hook nil
+	"Hook that is run after `multiple-cursors-mode' is disabled.")))
+
+  ;; * Mark one more occurrence
+  ;;
+  ;; | mc/mark-next-like-this            | Adds a cursor and region at the next part of the buffer       |
+  ;; |                                   | forwards that matches the current region.                     |
+  ;; | mc/mark-next-word-like-this       | Like `mc/mark-next-like-this` but only for whole words.       |
+  ;; | mc/mark-next-symbol-like-this     | Like `mc/mark-next-like-this` but only for whole symbols.     |
+  ;; | mc/mark-previous-like-this        | Adds a cursor and region at the next part of the buffer       |
+  ;; |                                   | backwards that matches the current region.                    |
+  ;; | mc/mark-previous-word-like-this   | Like `mc/mark-previous-like-this` but only for whole words.   |
+  ;; | mc/mark-previous-symbol-like-this | Like `mc/mark-previous-like-this` but only for whole symbols. |
+  ;; | mc/mark-more-like-this-extended   | Use arrow keys to quickly mark/skip next/previous occurances. |
+  ;; | mc/add-cursor-on-click            | Bind to a mouse event to add cursors by clicking.             |
+  ;; |                                   | See tips-section.                                             |
+  ;;
+  ;; * Mark many occurrences
+  ;;
+  ;; | mc/mark-all-like-this                  | Marks all parts of the buffer that matches the current region.        |
+  ;; | mc/mark-all-words-like-this            | Like `mc/mark-all-like-this` but only for whole words.                |
+  ;; | mc/mark-all-symbols-like-this          | Like `mc/mark-all-like-this` but only for whole symbols.              |
+  ;; | mc/mark-all-in-region                  | Prompts for a string to match in the region, adding cursors           |
+  ;; |                                        | to all of them.                                                       |
+  ;; | mc/mark-all-like-this-in-defun         | Marks all parts of the current defun that matches the current region. |
+  ;; | mc/mark-all-words-like-this-in-defun   | Like `mc/mark-all-like-this-in-defun` but only for whole words.       |
+  ;; | mc/mark-all-symbols-like-this-in-defun | Like `mc/mark-all-like-this-in-defun` but only for whole symbols.     |
+  ;; | mc/mark-all-like-this-dwim             | Tries to be smart about marking everything you want. Can be           |
+  ;; |                                        | pressed multiple times.                                               |
+  ;;
+  ;; * Special
+  ;;
+  ;; | set-rectangular-region-anchor | Think of this one as `set-mark` except you're marking a rectangular region. |
+  ;; | mc/mark-sgml-tag-pair         | Mark the current opening and closing tag.                                   |
+  ;; | mc/insert-numbers             | Insert increasing numbers for each cursor, top to bottom.                   |
+  ;; | mc/sort-regions               | Sort the marked regions alphabetically.                                     |
+  ;; | mc/reverse-regions            | Reverse the order of the marked regions.                                    |
+  ;;
+  ;; ** Tips and tricks
+  ;; - To get out of multiple-cursors-mode, press `<return>` or `C-g`. The latter will
+  ;;   first disable multiple regions before disabling multiple cursors. If you want to
+  ;;   insert a newline in multiple-cursors-mode, use `C-j`.
+  ;; - Sometimes you end up with cursors outside of your view. You can
+  ;;   scroll the screen to center on each cursor with `C-v` and `M-v`.
+  ;; - Try pressing `mc/mark-next-like-this` with no region selected. It will just add a cursor
+  ;;   on the next line.
+  ;; - Try pressing `mc/mark-all-like-this-dwim` on a tagname in html-mode.
+  ;; - Notice that the number of cursors active can be seen in the modeline.
+  ;; - If you get out of multiple-cursors-mode and yank - it will yank only
+  ;;   from the kill-ring of main cursor. To yank from the kill-rings of
+  ;;   every cursor use yank-rectangle, normally found at C-x r y.
+  ;; - You can use `mc/reverse-regions` with nothing selected and just one cursor.
+  ;;   It will then flip the sexp at point and the one below it.
+  ;; - If you would like to keep the global bindings clean, and get custom keybindings
+  ;;   when the region is active, you can try [region-bindings-mode](https://github.com/fgallina/region-bindings-mode).
+  ;;
+  ;; It is recommended to add `mc/mark-next-like-this` to a key binding that's
+  ;; right next to the key for `er/expand-region`.
+
+#+END_SRC
 ** Custom functions
 - Create an empty buffer
 #+BEGIN_SRC emacs-lisp
@@ -790,7 +909,7 @@ Nice tabs mode for modern UI switching
 ** Basic keybindings
 These are evil specific keybindings. All definitions use general.el 
 
-1. M-x 
+1. Essentials
     #+BEGIN_SRC emacs-lisp
       (general-define-key
        "C-e" 'end-of-line
@@ -799,7 +918,6 @@ These are evil specific keybindings. All definitions use general.el
        "M-+" 'text-scale-increase
        "M--" 'text-scale-decrease
        "C-x C-b" 'ibuffer
-       ;; "<f5>" 'helm-mini
        "C-M-o" 'hydra-window/body
        "<f6>" 'deadgrep
        )
@@ -811,8 +929,8 @@ These are evil specific keybindings. All definitions use general.el
 
 ** Expand region
    #+BEGIN_SRC emacs-lisp
-    (global-set-key (kbd "C->") 'er/expand-region)
-    (global-set-key (kbd "C-<") 'er/contact-region)
+    (global-set-key (kbd "C-S-m") 'er/expand-region)
+    (global-set-key (kbd "C-S-n") 'er/contact-region)
    #+END_SRC
 ** Comment
    #+BEGIN_SRC emacs-lisp
