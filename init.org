@@ -189,12 +189,12 @@ I've settled down with the nice ~modus operandi~ theme by Protesilaos
 Stavrou and the overpass fonts from [[https://overpassfont.org/][here]].
 
     #+BEGIN_SRC emacs-lisp
-          (load-theme 'modus-operandi t)
+          (load-theme 'modus-vivendi t)
           ;; (set-face-attribute 'default nil :height 120)
 
           ;; (set-frame-font "Overpass 13" nil t)
           (set-face-attribute 'default nil
-                      :family "Overpass Mono Regular"
+                      :family "Overpass Mono"
                       :height 110
                       :weight 'normal
                       :width 'normal)
@@ -450,6 +450,22 @@ no longer under active development.
         (ctrlf-mode +1)
         )
     #+END_SRC
+*** Company mode
+    Add association lists for company to complete
+    #+BEGIN_SRC emacs-lisp
+      ;; Add yasnippet support for all company backends
+      ;; https://github.com/syl20bnr/spacemacs/pull/179
+      (defvar company-mode/enable-yas t
+	"Enable yasnippet for all backends.")
+
+      (defun company-mode/backend-with-yas (backend)
+	(if (or (not company-mode/enable-yas) (and (listp backend) (member 'company-yasnippet backend)))
+	    backend
+	  (append (if (consp backend) backend (list backend))
+		  '(:with company-yasnippet))))
+
+      (setq company-backends (mapcar #'company-mode/backend-with-yas company-backends))
+    #+END_SRC
 *** Dired 
 Some configuration regarding dired and some of it utility packages
 #+BEGIN_SRC emacs-lisp
@@ -541,6 +557,18 @@ mode that comes by default with emacs
     Set the interpreter to the torch mode 
     #+BEGIN_SRC emacs-lisp
       (setq python-shell-interpreter "python")
+    #+END_SRC
+
+    Turn on some hooks 
+    #+BEGIN_SRC emacs-lisp
+      (use-package python
+	:config
+	(add-hook 'python-mode-hook
+		  (lambda ()
+		    (yas-minor-mode-on)
+		    (yas-reload-all)))
+	)
+	    
     #+END_SRC
 *** LSP mode 
 #+BEGIN_SRC emacs-lisp
@@ -724,16 +752,23 @@ mode that comes by default with emacs
   )
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
-(use-package matlab-mode
-  :ensure t
-  :mode ("\\.m\\'" . matlab-mode)
-  :bind ("C-RET" . 'matlab-shell-run-region-or-line)
-  :config
-  (setq matlab-shell-echoes nil)
-  (setq matlab-indent-function t)
-  (setq matlab-shell-command "matlab")
-  (company-mode)
-)
+  (use-package matlab-mode
+    :ensure t
+    :mode ("\\.m\\'" . matlab-mode)
+    :bind ("C-RET" . 'matlab-shell-run-region-or-line)
+    :after matlab
+    :init
+    :config
+    (setq matlab-shell-echoes nil)
+    (setq matlab-indent-function t)
+    (setq matlab-shell-command "matlab")
+    (company-mode)
+    (add-hook 'matlab-mode-hook
+    (lambda ()
+      (yas-minor-mode-on)
+      (yas-reload-all)
+      ))
+  )
 #+END_SRC
 
 *** Julia
@@ -755,7 +790,8 @@ recently I'm also using it to program in ~julia~.
            ("\\.jl\\'" . ess-julia-mode))
     :config
     (lambda ()
-      (flymake-mode-off))
+      (flymake-mode-off)
+      (yas-minor-mode 1))
     )
 #+END_SRC
 *** General
@@ -802,6 +838,7 @@ Nice tabs mode for modern UI switching
   ("C-<tab>" . centaur-tabs-forward))
 #+END_SRC
 *** Multiple cursors
+
 Setup borrowed from Kaushal Modi's setup
 #+BEGIN_SRC emacs-lisp
   ;; Time-stamp: <2017-09-20 09:52:55 kmodi>
@@ -890,8 +927,26 @@ Setup borrowed from Kaushal Modi's setup
   ;;
   ;; It is recommended to add `mc/mark-next-like-this` to a key binding that's
   ;; right next to the key for `er/expand-region`.
-
+  
 #+END_SRC
+*** PDF tools
+    Awesom pdf reader right inside emacs
+    #+BEGIN_SRC emacs-lisp
+      (use-package pdf-tools
+	:ensure
+	:init
+	(pdf-tools-install))
+    #+END_SRC
+*** Yasnippet
+    #+BEGIN_SRC emacs-lisp
+      (use-package yasnippet
+	:config
+	(setq yas-snippet-dirs
+	    '("~/.emacs.d/snippets"                 ;; personal snippets
+	      ))
+	)
+
+    #+END_SRC
 ** Custom functions
 - Create an empty buffer
 #+BEGIN_SRC emacs-lisp

@@ -15,7 +15,7 @@
 elpa
 
 
-# Other directories generated 
+# Other directories generated
 
 abbrev_defs
 anaconda-mode/
@@ -25,5 +25,4 @@ ido.last
 init.bak
 projectile-bookmarks.eld
 recentf
-snippets/
 tramp
