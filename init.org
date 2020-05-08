@@ -547,7 +547,15 @@ mode that comes by default with emacs
       (setq python-shell-interpreter "python")
     #+END_SRC
 
+    Some more improvements
+    #+BEGIN_SRC emacs-lisp
+      (use-package python
+	:config
+	:bind (:map python-mode-map
+		    ("C-c n f" . 'narrow-to-defun)
+		    ("C-c n w" . 'widen)))
     #+END_SRC
+
 *** LSP mode 
 #+BEGIN_SRC emacs-lisp
   (use-package lsp-mode
@@ -937,11 +945,19 @@ These are evil specific keybindings. All definitions use general.el
        "<f6>" 'deadgrep
        )
     #+END_SRC
-2. Program mode bindings
+
+2. Narrow and widen
+
+   #+BEGIN_SRC emacs-lisp
+     (general-define-key 
+      :prefix "M-n"
+      "n" 'narrow-to-region
+      "w" 'widen)
+   #+END_SRC
+3. Program mode bindings
    #+BEGIN_SRC emacs-lisp
    (define-key prog-mode-map (kbd "C-;") 'comment-line)
    #+END_SRC
-
 ** Expand region
    #+BEGIN_SRC emacs-lisp
     (global-set-key (kbd "C-S-m") 'er/expand-region)
@@ -961,6 +977,6 @@ These are evil specific keybindings. All definitions use general.el
 ** Custom global shortcuts
 1. Create new buffer with custom
    #+BEGIN_SRC emacs-lisp
-   (global-set-key (kbd "C-x n") 'create-empty-buffer)
+   (global-set-key (kbd "C-x |") 'create-empty-buffer)
    #+END_SRC
 
