@@ -1,6 +1,0 @@
-# -*- mode: snippet -*-
-# name: function defining
-# key: f
-# --
-function [$1] = $2($3)
-$0

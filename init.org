@@ -109,43 +109,42 @@
 
    #+BEGIN_SRC emacs-lisp
      (let* ((package--builtins nil)
-            (packages
-             '(ag			; powerful silver searcher plugib
-               auto-compile		; automatically compile Emacs Lisp libraries
-               company			; Modular text completion framework
-               deadgrep			; Powerful grep 
-               define-word		; display the definition of word at point
-               doom-themes		;Another amazing theme
-               modus-operandi-theme	;Theme by prot
-               modus-vivendi-theme	;Another theme by prot
-               dracula-theme		; Theme
-               diminish			; Diminished modes from modeline
-               expand-region		; Increase selected region by semantic units
-               golden-ratio		; Automatic resizing windows to golden ratio
-               gruvbox-theme		;Another inspirational theme 
-               hydra			; Another nice aboabo package for persisten keys
-               magit			; control Git from Emacs
-               markdown-mode		; Emacs Major mode for Markdown-formatted files
-               matlab-mode		; MATLAB integration with Emacs
-               multiple-cursors		; Multiple cursors for Emacs
-               org			; Outline-based notes management and organizer
-               powerline		; Powerline for emacs
-               rg			; An even faster search optinon compared to ag 
-               try			; Try out Emacs packages
-               use-package		; Great package manager with nifty features
-               which-key
-               undo-tree		; Neat undo
-               yasnippet		; Superb template completion framework
-               )))         ; Display available keybindings in popup
+	    (packages
+	     '(ag			; powerful silver searcher plugib
+	       auto-compile		; automatically compile Emacs Lisp libraries
+	       company			; Modular text completion framework
+	       deadgrep			; Powerful grep 
+	       define-word		; display the definition of word at point
+	       doom-themes		;Another amazing theme
+	       modus-operandi-theme	;Theme by prot
+	       modus-vivendi-theme	;Another theme by prot
+	       dracula-theme		; Theme
+	       diminish			; Diminished modes from modeline
+	       expand-region		; Increase selected region by semantic units
+	       golden-ratio		; Automatic resizing windows to golden ratio
+	       gruvbox-theme		;Another inspirational theme 
+	       hydra			; Another nice aboabo package for persisten keys
+	       magit			; control Git from Emacs
+	       markdown-mode		; Emacs Major mode for Markdown-formatted files
+	       matlab-mode		; MATLAB integration with Emacs
+	       multiple-cursors		; Multiple cursors for Emacs
+	       org			; Outline-based notes management and organizer
+	       powerline		; Powerline for emacs
+	       rg			; An even faster search optinon compared to ag 
+	       try			; Try out Emacs packages
+	       use-package		; Great package manager with nifty features
+	       which-key
+	       undo-tree		; Neat undo
+	       )))         ; Display available keybindings in popup
        (ignore-errors ;; This package is only relevant for Mac OS X.
-         (when (memq window-system '(mac ns))
-           (push 'exec-path-from-shell packages)
-           (push 'reveal-in-osx-finder packages))
-         (let ((packages (remove-if 'package-installed-p packages)))
-           (when packages
-             ;; Install uninstalled packages
-             (package-refresh-contents)
-             (mapc 'package-install packages)))))
+	 (when (memq window-system '(mac ns))
+	   (push 'exec-path-from-shell packages)
+	   (push 'reveal-in-osx-finder packages))
+	 (let ((packages (remove-if 'package-installed-p packages)))
+	   (when packages
+	     ;; Install uninstalled packages
+	     (package-refresh-contents)
+	     (mapc 'package-install packages)))))
    #+END_SRC
 ** Mac OS based config
    Switches meta to command from option
@@ -298,19 +297,6 @@ Powerline for emacs
     ;; ;; got this from https://www.reddit.com/r/emacs/comments/3r9fic/best_practicestip_for_companymode_andor_yasnippet/
     ;; ;; (setq company-transformers '(company-sort-by-occurrence))
 
-    ;; ;; Add yasnippet support for all company backends
-    ;; ;; https://github.com/syl20bnr/spacemacs/pull/179
-    ;; ;; (defvar company-mode/enable-yas t "Enable yasnippet for all backends.")
-
-    ;; (defun company-mode/backend-with-yas (backend)
-    ;;   (if (or (not company-mode/enable-yas) (and (listp backend)    (member 'company-yasnippet backend)))
-    ;;   backend
-    ;; (append (if (consp backend) backend (list backend))
-    ;;         '(:with company-yasnippet))))
-
-    ;; (setq company-backends (mapcar #'company-mode/backend-with-yas company-backends))
-
-
 
     #+END_SRC
     
@@ -410,6 +396,24 @@ no longer under active development.
     (selectrum-mode -1)
     (selectrum-prescient-mode -1))
 #+END_SRC
+*** Yasnippet
+    #+BEGIN_SRC emacs-lisp
+      (use-package yasnippet                  ; Snippets
+	:ensure t
+	:config
+	(setq
+	 yas-verbosity 1                      ; No need to be so verbose
+	 yas-wrap-around-region t)
+
+	(with-eval-after-load 'yasnippet
+	  (setq yas-snippet-dirs '(yasnippet-snippets-dir)))
+
+	(yas-reload-all)
+	(yas-global-mode))
+
+      (use-package yasnippet-snippets         ; Collection of snippets
+	:ensure t)
+    #+END_SRC
 *** Ivy
 #+BEGIN_SRC emacs-lisp
   (use-package ivy :ensure t
@@ -449,22 +453,6 @@ no longer under active development.
         :init
         (ctrlf-mode +1)
         )
-    #+END_SRC
-*** Company mode
-    Add association lists for company to complete
-    #+BEGIN_SRC emacs-lisp
-      ;; Add yasnippet support for all company backends
-      ;; https://github.com/syl20bnr/spacemacs/pull/179
-      (defvar company-mode/enable-yas t
-	"Enable yasnippet for all backends.")
-
-      (defun company-mode/backend-with-yas (backend)
-	(if (or (not company-mode/enable-yas) (and (listp backend) (member 'company-yasnippet backend)))
-	    backend
-	  (append (if (consp backend) backend (list backend))
-		  '(:with company-yasnippet))))
-
-      (setq company-backends (mapcar #'company-mode/backend-with-yas company-backends))
     #+END_SRC
 *** Dired 
 Some configuration regarding dired and some of it utility packages
@@ -559,33 +547,24 @@ mode that comes by default with emacs
       (setq python-shell-interpreter "python")
     #+END_SRC
 
-    Turn on some hooks 
-    #+BEGIN_SRC emacs-lisp
-      (use-package python
-	:config
-	(add-hook 'python-mode-hook
-		  (lambda ()
-		    (yas-minor-mode-on)
-		    (yas-reload-all)))
-	)
-	    
     #+END_SRC
 *** LSP mode 
 #+BEGIN_SRC emacs-lisp
-(use-package lsp-mode
-  :hook ((c-mode
-          c-or-c++-mode
-          ;; python-mode
-          web-mode) . lsp)
-  :commands lsp
-  :config
-  (setq lsp-prefer-flymake nil)
-  (setq lsp-enable-symbol-highlighting nil)
-  (use-package lsp-java :after lsp))
+  (use-package lsp-mode
+    :hook ((c-mode
+	    c-or-c++-mode
+	    ;; python-mode
+	    web-mode) . lsp)
+    :commands lsp
+    :config
+    (setq lsp-prefer-flymake nil)
+    (setq lsp-enable-symbol-highlighting nil)
+    (use-package lsp-java :after lsp))
 
-(use-package company-lsp
-  :commands company-lsp
-  :config (setq company-lsp-cache-candidates 'auto))
+  (use-package company-lsp
+    :ensure t
+    :commands company-lsp
+    :config (setq company-lsp-cache-candidates 'auto))
 #+END_SRC
 *** Org mode
     1. *Babel*: Org babel lets you to write and execute a lot of
@@ -675,61 +654,59 @@ mode that comes by default with emacs
 *** latex
     We will use the wonderful auctex mode
     #+BEGIN_SRC emacs-lisp
-    (setq reftex-default-bibliography "/Users/vigneshganapathiraman/bibliography/references_zotero.bib")
-    (use-package reftex
-      :ensure t
-      :after auctex
-      :config
-      (setq reftex-enable-partial-scans t)
-      (setq reftex-save-parse-info t)
-      (setq reftex-use-multiple-selection-buffers t)
-      (setq reftex-plug-into-AUCTeX t)
-      (setq reftex-label-alist '(AMSTeX))   ;enable eqref inside reftex
+      (setq reftex-default-bibliography "/Users/vigneshganapathiraman/bibliography/references_zotero.bib")
+      (use-package reftex
+	:ensure t
+	:after auctex
+	:config
+	(setq reftex-enable-partial-scans t)
+	(setq reftex-save-parse-info t)
+	(setq reftex-use-multiple-selection-buffers t)
+	(setq reftex-plug-into-AUCTeX t)
+	(setq reftex-label-alist '(AMSTeX))   ;enable eqref inside reftex
 
-      ) 
+	) 
 
-    (use-package latex-preview-pane
-      :ensure t
-      :defer t)
+      (use-package latex-preview-pane
+	:ensure t
+	:defer t)
 
-    (use-package tex-site
-      :ensure auctex
-      :mode ("\\.tex\\'" . latex-mode)
-      :defer t
-      :config
-      (setq-default bibtex-dialect 'biblatex)
-      (add-hook 'LaTeX-mode-hook
-                (lambda ()
-                  (turn-on-reftex)
-                  (turn-on-auto-fill)
-                  (latex-math-mode)
-                  (TeX-PDF-mode t)
-                  (yas-minor-mode)
-                  (yas-reload-all)
-                  (TeX-source-correlate-mode t)
-                  (setq TeX-source-correlate-method 'synctex)
-                  (setq TeX-view-program-selection '((output-pdf "PDF Viewer")))
-                  (setq auctex-latexmk-inherit-TeX-PDF-mode t)
-                  (setq TeX-view-program-list
-                        '(("PDF Viewer" "evince")))
+      (use-package tex-site
+	:ensure auctex
+	:mode ("\\.tex\\'" . latex-mode)
+	:defer t
+	:config
+	(setq-default bibtex-dialect 'biblatex)
+	(add-hook 'LaTeX-mode-hook
+		  (lambda ()
+		    (turn-on-reftex)
+		    (turn-on-auto-fill)
+		    (latex-math-mode)
+		    (TeX-PDF-mode t)
+		    (TeX-source-correlate-mode t)
+		    (setq TeX-source-correlate-method 'synctex)
+		    (setq TeX-view-program-selection '((output-pdf "PDF Viewer")))
+		    (setq auctex-latexmk-inherit-TeX-PDF-mode t)
+		    (setq TeX-view-program-list
+			  '(("PDF Viewer" "evince")))
 
-                  ;; Fix indentation
-                  (setq LaTeX-indent-level 3)
-                  (setq LaTeX-item-indent 3)
-                  (setq TeX-brace-indent-level 3)
-                  (add-to-list 'company-backends 'company-math-symbols-unicode)
-                  ))
-                  ) 
-    (use-package auctex-latexmk
-      :ensure t
-      :after auctex
-      :config
-      (auctex-latexmk-setup)
-      )
+		    ;; Fix indentation
+		    (setq LaTeX-indent-level 3)
+		    (setq LaTeX-item-indent 3)
+		    (setq TeX-brace-indent-level 3)
+		    (add-to-list 'company-backends 'company-math-symbols-unicode)
+		    ))
+		    ) 
+      (use-package auctex-latexmk
+	:ensure t
+	:after auctex
+	:config
+	(auctex-latexmk-setup)
+	)
 
-    (use-package company-math
-      :ensure t
-      :after auctex)
+      (use-package company-math
+	:ensure t
+	:after auctex)
     #+END_SRC
 
 *** Markdown
@@ -763,11 +740,6 @@ mode that comes by default with emacs
     (setq matlab-indent-function t)
     (setq matlab-shell-command "matlab")
     (company-mode)
-    (add-hook 'matlab-mode-hook
-    (lambda ()
-      (yas-minor-mode-on)
-      (yas-reload-all)
-      ))
   )
 #+END_SRC
 
@@ -788,10 +760,7 @@ recently I'm also using it to program in ~julia~.
     :mode (
            ("\\.R\\'" . ess-r-mode)
            ("\\.jl\\'" . ess-julia-mode))
-    :config
-    (lambda ()
-      (flymake-mode-off)
-      (yas-minor-mode 1))
+
     )
 #+END_SRC
 *** General
@@ -937,16 +906,7 @@ Setup borrowed from Kaushal Modi's setup
 	:init
 	(pdf-tools-install))
     #+END_SRC
-*** Yasnippet
-    #+BEGIN_SRC emacs-lisp
-      (use-package yasnippet
-	:config
-	(setq yas-snippet-dirs
-	    '("~/.emacs.d/snippets"                 ;; personal snippets
-	      ))
-	)
 
-    #+END_SRC
 ** Custom functions
 - Create an empty buffer
 #+BEGIN_SRC emacs-lisp
