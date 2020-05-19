@@ -6,12 +6,6 @@
 #+LATEX_HEADER: \usepackage[utf8]{inputenc}
 #+PROPERTY: header-args :tangle yes
 * Configuration
-** Better defaults
-   This configures some sane defaults based on the better defaults packages
-   #+BEGIN_SRC emacs-lisp
-    ;; (add-to-list 'load-path "~/.emacs.d/better-defaults")
-    ;; (require 'better-defaults)
-   #+END_SRC
 ** Meta
 
    When this configuration is loaded for the first time, the ~init.el~ is
@@ -183,20 +177,23 @@
    ;; (server-start)
    #+END_SRC
 *** Eye candy
-I play around with different font options and color themes. Currently
-I've settled down with the nice ~modus operandi~ theme by Protesilaos
-Stavrou and the overpass fonts from [[https://overpassfont.org/][here]].
+    I play around with different font options and color themes. Currently
+    I've settled down with the nice ~modus operandi~ theme by Protesilaos
+    Stavrou and the overpass fonts from [[https://overpassfont.org/][here]].
 
     #+BEGIN_SRC emacs-lisp
           (load-theme 'modus-vivendi t)
-          ;; (set-face-attribute 'default nil :height 120)
+          (set-face-attribute 'default nil :height 120)
 
           ;; (set-frame-font "Overpass 13" nil t)
-          (set-face-attribute 'default nil
-                      :family "Overpass Mono"
-                      :height 110
-                      :weight 'normal
-                      :width 'normal)
+          ;; (load-file "~/.emacs.d/clean.el")
+          ;; (
+          (set-frame-font "Fira Mono Light 11" nil t)
+           ;; (set-face-attribute 'default nil
+           ;;            :family "Inconsolata 14"
+           ;;            :height 110
+           ;;            :weight 'normal
+           ;;            :width 'normal)
 
           (use-package doom-modeline
                 :ensure t
@@ -246,10 +243,10 @@ Stavrou and the overpass fonts from [[https://overpassfont.org/][here]].
 
     #+END_SRC
   
-Powerline for emacs 
-#+BEGIN_SRC emacs-lisp
+    Powerline for emacs 
+    #+BEGIN_SRC emacs-lisp
 (powerline-vim-theme) 
-#+END_SRC 
+    #+END_SRC 
 
    
 
@@ -340,6 +337,12 @@ Powerline for emacs
 ** Modes
    Now we write down language specific (python, latex, org, etc.) or
    feature specific (spelling, autocompletion etc.) configuration
+*** Better defaults
+    Sets up better defaults for emacs
+    #+BEGIN_SRC emacs-lisp
+      (use-package better-defaults
+	:ensure)
+    #+END_SRC
 *** Spelling
     For spell-checking we will use the wonderful flyspell package. We
     will enable flyspell for all text-mode buffers and comment regions
@@ -356,7 +359,7 @@ Powerline for emacs
     #+BEGIN_SRC emacs-lisp
     (use-package flyspell-correct-ivy
       :ensure t
-      :bind ("C-;" . flyspell-correct-wrapper)
+      :bind ("C-'" . flyspell-correct-wrapper)
       :init
       (setq flyspell-correct-interface #'flyspell-correct-ivy))
     #+END_SRC
@@ -372,15 +375,26 @@ Powerline for emacs
        :bind ("M-o" . ace-window))
     #+END_SRC
 *** Amx
-This is an alternative to the popular smex mode, which is apparently
-no longer under active development. 
-#+BEGIN_SRC emacs-lisp
+    This is an alternative to the popular smex mode, which is apparently
+    no longer under active development. 
+    #+BEGIN_SRC emacs-lisp
   (use-package amx
     :ensure t
     :bind ("s-x" . amx))
-#+END_SRC
+    #+END_SRC
+*** Async
+    Essential package for supporting asynchronous operations in
+    emacs. This is especially useful when carrying out cpu intensive
+    operations such as copy.
+    #+BEGIN_SRC emacs-lisp
+      (use-package async
+        :ensure t
+        :config
+        (dired-async-mode 1)
+        (async-bytecomp-package-mode 1))
+    #+END_SRC
 *** Selectrum
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package selectrum
     :ensure
     :config
@@ -395,7 +409,7 @@ no longer under active development.
       :after selectrum)
     (selectrum-mode -1)
     (selectrum-prescient-mode -1))
-#+END_SRC
+    #+END_SRC
 *** Yasnippet
     #+BEGIN_SRC emacs-lisp
       (use-package yasnippet                  ; Snippets
@@ -415,12 +429,14 @@ no longer under active development.
 	:ensure t)
     #+END_SRC
 *** Ivy
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package ivy :ensure t
     :diminish (ivy-mode . "")
     :bind
     (:map ivy-mode-map
-     ("C-'" . ivy-avy))
+     ("C-'" . ivy-avy)
+     ("s-b" . ivy-switch-buffer-other-window)
+     ("s-f" . find-file-other-window))
     :config
     (use-package ivy-prescient
       :ensure t
@@ -439,12 +455,29 @@ no longer under active development.
     (setq ivy-re-builders-alist
 	  ;; allow input not in order
 	  '((t   . ivy--regex-ignore-order))))
-#+END_SRC
+    #+END_SRC
 *** Counsel
-#+BEGIN_SRC emacs-lisp
-  (use-package counsel :ensure t)
+    1. Basic counsel definition
+       #+BEGIN_SRC emacs-lisp
+         (use-package counsel :ensure t)
 
-#+END_SRC
+       #+END_SRC
+
+    2. Counsel etags This is a drop-in replacement for
+       ~xref-find-definition~. I'm going to rebind ~M-.~ to
+       ~counsel-etags-find-tag~. The cool thing about this package is, if
+       the TAGS file is not found in the directory, the package will
+       create it for you. 
+       #+BEGIN_SRC emacs-lisp
+                  (use-package counsel-etags
+                    :ensure t
+                    :bind
+                    ("C-." . 'counsel-etags-find-tag-at-point)
+                    ("s-i" . 'counsel-outline)
+                    ("s-." . 'counsel-git-grep)
+         )
+       #+END_SRC
+
 *** Ctrlf
     This is a new search application. I'm going to try this in place of isearch
     #+BEGIN_SRC emacs-lisp
@@ -454,15 +487,89 @@ no longer under active development.
         (ctrlf-mode +1)
         )
     #+END_SRC
+
+*** Iedit mode
+    #+BEGIN_SRC emacs-lisp
+      (use-package iedit
+        :ensure
+        :bind ("C-:" . 'iedit-mode))
+    #+END_SRC
+
 *** Dired 
-Some configuration regarding dired and some of it utility packages
-#+BEGIN_SRC emacs-lisp
-  ;; (use-package dired
-  ;;   "configuration here"
-  ;;   )
-#+END_SRC
+    Some configuration regarding dired and some of it utility packages
+    #+BEGIN_SRC emacs-lisp
+      (use-package dired
+        :config 
+        (setq dired-recursive-copies 'always)
+        (setq dired-recursive-deletes 'always)
+        (setq delete-by-moving-to-trash t)
+        (setq dired-listing-switches
+              "-AGFhlv --group-directories-first --time-style=long-iso")
+        (setq dired-dwim-target t)
+        ;; Note that the the syntax for `use-package' hooks is controlled by
+        ;; the `use-package-hook-name-suffix' variable.  The "-hook" suffix is
+        ;; not an error of mine.
+        :hook ((dired-mode-hook . dired-hide-details-mode)
+               (dired-mode-hook . hl-line-mode)))
+    #+END_SRC
+
+*** Dired narrow
+    Dynamically narrow Dired buffer
+    #+BEGIN_SRC emacs-lisp
+      (use-package dired-narrow
+        :ensure 
+        :bind (:map dired-mode-map
+                    ("/" . dired-narrow)))
+    #+END_SRC
+*** Dired jump
+    #+BEGIN_SRC emacs-lisp
+      (use-package emacs
+	:bind
+	("C-x C-j" . 'counsel-dired-jump))
+        #+END_SRC
+*** Dired subtree
+    Use tab and s-tab to open and close directories
+    #+BEGIN_SRC emacs-lisp
+      (use-package dired-subtree
+        :ensure
+        :after dired
+        :config
+        (setq dired-subtree-use-backgrounds nil)
+        :bind (:map dired-mode-map
+                    ("<tab>" . dired-subtree-toggle)
+                    ("<C-tab>" . dired-subtree-cycle)
+                    ("<S-iso-lefttab>" . dired-subtree-remove)))
+    #+END_SRC
+*** Diredfl
+    More colors on the dired buffer
+    #+BEGIN_SRC emacs-lisp
+      (use-package diredfl
+        :ensure
+        :hook (dired-mode-hook . diredfl-mode))
+    #+END_SRC
+*** Dired peep
+    Preview files inside dired
+   #+BEGIN_SRC emacs-lisp
+     (use-package peep-dired
+       :ensure
+       :after dired
+       :config
+       (setq peep-dired-cleanup-on-disable t)
+       (setq peep-dired-enable-on-directories nil)
+       (setq peep-dired-ignored-extensions
+             '("mkv" "webm" "mp4" "mp3" "ogg" "iso"))
+       :bind (:map dired-mode-map
+                   ("P" . peep-dired)))
+   #+END_SRC
+*** Tramp 
+    This has some refinements for tramp mode
+    #+BEGIN_SRC emacs-lisp
+      (use-package tramp
+        :config
+        (setq tramp-inline-compress-start-size 1000000))
+    #+END_SRC
 *** Deft mode
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
 (use-package deft
   :ensure t
   :bind ("<f8>" . 'deft)
@@ -470,15 +577,17 @@ Some configuration regarding dired and some of it utility packages
   (setq deft-directory "/Users/vigneshganapathiraman/Dropbox/notes"
         deft-extensions '("md" "org"))
   )
-#+END_SRC
+    #+END_SRC
 *** Flycheck
-Flycheck mode is apparently faster and more efficient than flymake
-mode that comes by default with emacs
-#+BEGIN_SRC emacs-lisp
-  (use-package flycheck
-    :ensure
-    :defer)
-#+END_SRC
+    Flycheck mode is apparently faster and more efficient than flymake
+    mode that comes by default with emacs
+    #+BEGIN_SRC emacs-lisp
+      (use-package flycheck
+        :ensure
+        :config
+        (global-flycheck-mode 1)
+        (flymake-mode -1))
+    #+END_SRC
 *** Python mode
     We will use anaconda mode for python.
     #+BEGIN_SRC emacs-lisp
@@ -497,9 +606,9 @@ mode that comes by default with emacs
         ;; Some recommended configuration options by elpy
 
                                               ; Use flycheck instead of flymake
-        (when (load "flycheck" t t)
-          (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
-          (add-hook 'elpy-mode-hook 'flycheck-mode))
+        ;; (when (load "flycheck" t t)
+        ;;   (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+        ;;   (add-hook 'elpy-mode-hook 'flycheck-mode))
 
         ;; Use this improved function for function navigation
         ;; This function additionally searches for the symbol (or function) using rgrep
@@ -537,43 +646,37 @@ mode that comes by default with emacs
         :after python
         :bind (:map python-mode-map
                     ("M-q". 'python-black-statement)
-                    ("M-S-q" . 'python-black-buffer)))
+                    ("M-Q" . 'python-black-buffer)))
     #+END_SRC
 
 
     
-    Set the interpreter to the torch mode 
-    #+BEGIN_SRC emacs-lisp
-      (setq python-shell-interpreter "python")
-    #+END_SRC
 
     Some more improvements
     #+BEGIN_SRC emacs-lisp
       (use-package python
-	:config
-	:bind (:map python-mode-map
-		    ("C-c n f" . 'narrow-to-defun)
-		    ("C-c n w" . 'widen)))
+        :after python
+        :config
+        (setq python-indent-offset 4)
+        (setq python-shell-interpreter "python") ; Set interpreter to just
+                                                 ; python, let the virtual
+                                                 ; env figure out the right
+                                                 ; python based on the context
+        :bind (:map python-mode-map
+                    ("C-c n f" . 'narrow-to-defun)
+                    ("C-c n w" . 'widen)))
     #+END_SRC
+*** Ipython notebook mode
+    This is a frontend to jupyter notebooks with emacs keybindings and
+    other features.
 
-*** LSP mode 
-#+BEGIN_SRC emacs-lisp
-  (use-package lsp-mode
-    :hook ((c-mode
-	    c-or-c++-mode
-	    ;; python-mode
-	    web-mode) . lsp)
-    :commands lsp
-    :config
-    (setq lsp-prefer-flymake nil)
-    (setq lsp-enable-symbol-highlighting nil)
-    (use-package lsp-java :after lsp))
-
-  (use-package company-lsp
-    :ensure t
-    :commands company-lsp
-    :config (setq company-lsp-cache-candidates 'auto))
-#+END_SRC
+    #+BEGIN_SRC emacs-lisp
+      (use-package ein
+	:ensure t
+	:defer
+	:diminish "ein"
+	)
+    #+END_SRC
 *** Org mode
     1. *Babel*: Org babel lets you to write and execute a lot of
        languages within org mode
@@ -757,6 +860,34 @@ mode that comes by default with emacs
     :ensure t
     :defer t)
 #+END_SRC
+
+*** Go lang
+    Emacs setup for golang
+    #+BEGIN_SRC emacs-lisp
+        (use-package go-mode
+          :ensure
+          :config
+          (add-to-list 'auto-mode-alist '("\\.go\\'" . go-mode))
+          (add-hook 'go-mode-hook 'lsp-deferred)
+        (use-package lsp-mode
+        :ensure t
+        :commands (lsp lsp-deferred)
+        :hook (go-mode . lsp-deferred))
+        (use-package company-lsp
+        :ensure t
+        :commands company-lsp)
+
+        ;; Set some parameters
+  
+
+      (setq lsp-ui-doc-enable nil
+            lsp-ui-peek-enable t
+            lsp-ui-sideline-enable t
+            lsp-ui-imenu-enable t
+            lsp-ui-flycheck-enable t))
+
+    
+    #+END_SRC
 *** ESS
 ESS (/Emacs speaks statistics/) is a comprehensive package for using statistcs related packagse in
 emacs. I mostly use it to interact with R and write R code. However,
@@ -787,6 +918,26 @@ recently I'm also using it to program in ~julia~.
     (when filename
       (kill-new filename)
       (message "Copied buffer file name '%s' to the clipboard." filename))))
+
+
+(defun copy-line (arg)
+      "Copy lines (as many as prefix argument) in the kill ring"
+      (interactive "p")
+      (kill-ring-save (line-beginning-position)
+                      (line-beginning-position (+ 1 arg)))
+      (message "%d line%s copied" arg (if (= 1 arg) "" "s")))
+
+(defun quick-cut-line ()
+  "Cut the whole line that point is on.  Consecutive calls to this command append each line to the kill-ring."
+  (interactive)
+  (let ((beg (line-beginning-position 1))
+	(end (line-beginning-position 2)))
+    (if (eq last-command 'quick-cut-line)
+	(kill-append (buffer-substring beg end) (< end beg))
+      (kill-new (buffer-substring beg end)))
+    (delete-region beg end))
+  (beginning-of-line 1)
+  (setq this-command 'quick-cut-line))
 #+END_SRC
 *** Centaur tabs
 Nice tabs mode for modern UI switching
@@ -939,10 +1090,14 @@ These are evil specific keybindings. All definitions use general.el
        "C-a" 'beginning-of-visual-line
        "C-k" 'kill-line
        "M-+" 'text-scale-increase
-       "M--" 'text-scale-decrease
+       "M-_" 'text-scale-decrease
        "C-x C-b" 'ibuffer
        "C-M-o" 'hydra-window/body
        "<f6>" 'deadgrep
+       "M-O" 'occur
+       "C-x r y" 'er-copy-file-name-to-clipboard
+       "s-w" 'copy-line
+       "s-W" 'quick-cut-line
        )
     #+END_SRC
 
@@ -956,18 +1111,21 @@ These are evil specific keybindings. All definitions use general.el
    #+END_SRC
 3. Program mode bindings
    #+BEGIN_SRC emacs-lisp
-   (define-key prog-mode-map (kbd "C-;") 'comment-line)
+     (general-define-key
+      "C-;" 'comment-line)
    #+END_SRC
+4. Winner mode
+   #+BEGIN_SRC emacs-lisp
+     (general-define-key
+      "<s-right>" 'winner-undo
+      "<s-left>" 'winner-redo)
+   #+END_SRC
+
 ** Expand region
    #+BEGIN_SRC emacs-lisp
     (global-set-key (kbd "C-S-m") 'er/expand-region)
     (global-set-key (kbd "C-S-n") 'er/contact-region)
    #+END_SRC
-** Comment
-   #+BEGIN_SRC emacs-lisp
-   (global-set-key (kbd "C-:") 'comment-or-uncomment-region-or-line)
-   #+END_SRC
-
 ** Magit
 #+BEGIN_SRC emacs-lisp
   (use-package magit
