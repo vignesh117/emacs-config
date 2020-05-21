@@ -182,7 +182,9 @@
     Stavrou and the overpass fonts from [[https://overpassfont.org/][here]].
 
     #+BEGIN_SRC emacs-lisp
-          (load-theme 'modus-vivendi t)
+          ;; (load-theme 'modus-vivendi t)
+          (load-theme 'doom-henna t)
+          
           (set-face-attribute 'default nil :height 120)
 
           ;; (set-frame-font "Overpass 13" nil t)
@@ -488,6 +490,23 @@
         )
     #+END_SRC
 
+*** Dumb jump
+    Package to jump around code efficiently. Officially claims to
+    support more that 40 languages including python and matlab.
+
+    #+BEGIN_SRC emacs-lisp
+      (use-package dumb-jump
+        :bind (("M-g o" . dumb-jump-go-other-window)
+               ("M-g j" . dumb-jump-go)
+               ("M-g b" . dumb-jump-back)
+               ("M-g i" . dumb-jump-go-prompt)
+               ("M-g x" . dumb-jump-go-prefer-external)
+               ("M-g z" . dumb-jump-go-prefer-external-other-window)
+               ("M-g M-l" . dumb-jump-quick-look)
+               )
+        :config (setq dumb-jump-selector 'ivy) ;; (setq dumb-jump-selector 'helm)
+        :ensure)
+    #+END_SRC
 *** Iedit mode
     #+BEGIN_SRC emacs-lisp
       (use-package iedit
