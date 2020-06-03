@@ -183,14 +183,11 @@
 
     #+BEGIN_SRC emacs-lisp
           ;; (load-theme 'modus-vivendi t)
-          (load-theme 'doom-henna t)
-          
-          (set-face-attribute 'default nil :height 120)
-
+          (load-theme 'modus-operandi t)
           ;; (set-frame-font "Overpass 13" nil t)
           ;; (load-file "~/.emacs.d/clean.el")
           ;; (
-          (set-frame-font "Fira Mono Light 11" nil t)
+          ;; (set-frame-font "Inconsolata 12" nil t)
            ;; (set-face-attribute 'default nil
            ;;            :family "Inconsolata 14"
            ;;            :height 110
@@ -415,20 +412,20 @@
 *** Yasnippet
     #+BEGIN_SRC emacs-lisp
       (use-package yasnippet                  ; Snippets
-	:ensure t
-	:config
-	(setq
-	 yas-verbosity 1                      ; No need to be so verbose
-	 yas-wrap-around-region t)
+        :ensure t
+        :config
+        (setq
+         yas-verbosity 1                      ; No need to be so verbose
+         yas-wrap-around-region t)
 
-	(with-eval-after-load 'yasnippet
-	  (setq yas-snippet-dirs '(yasnippet-snippets-dir)))
+        ;; (with-eval-after-load 'yasnippet
+        ;;   (setq yas-snippet-dirs '(yasnippet-snippets-dir)))
 
-	(yas-reload-all)
-	(yas-global-mode))
+        (yas-reload-all)
+        (yas-global-mode))
 
       (use-package yasnippet-snippets         ; Collection of snippets
-	:ensure t)
+        :ensure t)
     #+END_SRC
 *** Ivy
     #+BEGIN_SRC emacs-lisp
@@ -511,6 +508,7 @@
     #+BEGIN_SRC emacs-lisp
       (use-package iedit
         :ensure
+        :defer 
         :bind ("C-:" . 'iedit-mode))
     #+END_SRC
 
@@ -585,7 +583,16 @@
     #+BEGIN_SRC emacs-lisp
       (use-package tramp
         :config
-        (setq tramp-inline-compress-start-size 1000000))
+        (setq tramp-inline-compress-start-size 1000000)
+        ;;(setq vc-handled-backends (quote (RCS CVS SVN SCCS Bzr Hg Mtn Arch)))
+        (setq vc-handled-backends '(SVN Git))
+        (setq remote-file-name-inhibit-cache nil)
+        (setq vc-ignore-dir-regexp
+              (format "%s\\|%s"
+                      vc-ignore-dir-regexp
+                      tramp-file-name-regexp))
+        (setq tramp-verbose 1)
+        )
     #+END_SRC
 *** Deft mode
     #+BEGIN_SRC emacs-lisp
@@ -616,20 +623,25 @@
         (setenv "WORKON_HOME" "/home/vigneshpop/miniconda3/envs")
         (pyvenv-workon "torch"))		;Can be changed later
 
+
+
       (use-package elpy
         :ensure t
         :after (python)
         :config
         (elpy-enable)
+        (setq elpy-rpc-virtualenv-path 'current)
+
 
         ;; Some recommended configuration options by elpy
 
                                               ; Use flycheck instead of flymake
-        ;; (when (load "flycheck" t t)
-        ;;   (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
-        ;;   (add-hook 'elpy-mode-hook 'flycheck-mode))
+        (when (load "flycheck" t t)
+          (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+          (add-hook 'elpy-mode-hook 'flycheck-mode))
 
         ;; Use this improved function for function navigation
+        ;; ;; 
         ;; This function additionally searches for the symbol (or function) using rgrep
         ;; if the function definition using tag information is not found. 
 
@@ -676,8 +688,9 @@
       (use-package python
         :after python
         :config
-        (setq python-indent-offset 4)
-        (setq python-shell-interpreter "python") ; Set interpreter to just
+        (setq python-indent-offset 4)    
+        (setq flycheck-check-syntax-automatically nil)
+        (setq python-shell-interpreter "python3") ; Set interpreter to just
                                                  ; python, let the virtual
                                                  ; env figure out the right
                                                  ; python based on the context
@@ -784,59 +797,60 @@
 *** latex
     We will use the wonderful auctex mode
     #+BEGIN_SRC emacs-lisp
-      (setq reftex-default-bibliography "/Users/vigneshganapathiraman/bibliography/references_zotero.bib")
+      ;; (setq reftex-default-bibliography "/Users/vigneshganapathiraman/bibliography/references_zotero.bib")
       (use-package reftex
-	:ensure t
-	:after auctex
-	:config
-	(setq reftex-enable-partial-scans t)
-	(setq reftex-save-parse-info t)
-	(setq reftex-use-multiple-selection-buffers t)
-	(setq reftex-plug-into-AUCTeX t)
-	(setq reftex-label-alist '(AMSTeX))   ;enable eqref inside reftex
+        :ensure t
+        :after auctex
+        :config
+        (setq reftex-enable-partial-scans t)
+        (setq reftex-save-parse-info t)
+        (setq reftex-use-multiple-selection-buffers t)
+        (setq reftex-plug-into-AUCTeX t)
+        (setq reftex-label-alist '(AMSTeX))   ;enable eqref inside reftex
 
-	) 
-
-      (use-package latex-preview-pane
-	:ensure t
-	:defer t)
+        ) 
 
       (use-package tex-site
-	:ensure auctex
-	:mode ("\\.tex\\'" . latex-mode)
-	:defer t
-	:config
-	(setq-default bibtex-dialect 'biblatex)
-	(add-hook 'LaTeX-mode-hook
-		  (lambda ()
-		    (turn-on-reftex)
-		    (turn-on-auto-fill)
-		    (latex-math-mode)
-		    (TeX-PDF-mode t)
-		    (TeX-source-correlate-mode t)
-		    (setq TeX-source-correlate-method 'synctex)
-		    (setq TeX-view-program-selection '((output-pdf "PDF Viewer")))
-		    (setq auctex-latexmk-inherit-TeX-PDF-mode t)
-		    (setq TeX-view-program-list
-			  '(("PDF Viewer" "evince")))
+        :ensure auctex
+        :mode ("\\.tex\\'" . latex-mode)
+        :defer t
+        :config
+        (setq-default bibtex-dialect 'biblatex)
+        (add-hook 'LaTeX-mode-hook
+                  (lambda ()
+                    (turn-on-reftex)
+                    (turn-on-auto-fill)
+                    (latex-math-mode)
+                    (TeX-PDF-mode t)
+                    (TeX-source-correlate-mode t)
+                    (setq TeX-source-correlate-method 'synctex)
+                    (setq 
+                     TeX-source-correlate-start-server t
+                     )
+                    (setq TeX-view-program-selection '((output-pdf "pdf-tools")))
+                    (setq auctex-latexmk-inherit-TeX-PDF-mode t)
+                    (setq TeX-view-program-list
+                          '(("pdf-tools" "TeX-pdf-tools-sync-view")))
+                    (add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)
 
-		    ;; Fix indentation
-		    (setq LaTeX-indent-level 3)
-		    (setq LaTeX-item-indent 3)
-		    (setq TeX-brace-indent-level 3)
-		    (add-to-list 'company-backends 'company-math-symbols-unicode)
-		    ))
-		    ) 
+                    ;; Fix indentation
+                    (setq LaTeX-indent-level 3)
+                    (setq LaTeX-item-indent 3)
+                    (setq TeX-brace-indent-level 3)
+                    (add-to-list 'company-backends 'company-math-symbols-unicode)
+                    ))
+        )
       (use-package auctex-latexmk
-	:ensure t
-	:after auctex
-	:config
-	(auctex-latexmk-setup)
-	)
+        :ensure t
+        :defer
+        :config
+        (auctex-latexmk-setup)
+        )
 
       (use-package company-math
-	:ensure t
-	:after auctex)
+        :ensure t
+        :after auctex)
+
     #+END_SRC
 
 *** Markdown
@@ -995,18 +1009,20 @@ Setup borrowed from Kaushal Modi's setup
 
   (use-package multiple-cursors
     :bind (
-	   ("C-S-c C-S-c" . mc/edit-lines)
-	   ("C->" . mc/mark-next-like-this)
-	   ("C-<" . mc/mark-previous-like-this)
-	   ("C-c C-<" . mc/mark-all-like-this)
-	   ("C-S-<mouse-1>" . mc/add-cursor-on-click))
+           ("C-S-c C-S-c" . mc/edit-lines)
+           ("C->" . mc/mark-next-like-this)
+           ("C-<" . mc/mark-previous-like-this)
+           ("C-c C-<" . mc/mark-all-like-this)
+           ("C-S-<down>" . mc/mark-next-lines)
+           ("C-S-<up>" . mc/mark-previous-lines)
+           ("C-S-<mouse-1>" . mc/add-cursor-on-click))
     :init
     (progn
       ;; Temporary hack to get around bug # 28524 in emacs 26+
       ;; https://debbugs.gnu.org/cgi/bugreport.cgi?bug=28524
       (setq mc/mode-line
-	    `(" mc:" (:eval (format ,(propertize "%-2d" 'face 'font-lock-warning-face)
-				    (mc/num-cursors)))))
+            `(" mc:" (:eval (format ,(propertize "%-2d" 'face 'font-lock-warning-face)
+                                    (mc/num-cursors)))))
 
       (setq mc/list-file (locate-user-emacs-file "mc-lists"))
 
@@ -1015,9 +1031,9 @@ Setup borrowed from Kaushal Modi's setup
       ;; `multiple-cursors-mode' minor mode definition, but they are not declared
       ;; (not `defvar'd). So do that first before using `add-hook'.
       (defvar multiple-cursors-mode-enabled-hook nil
-	"Hook that is run after `multiple-cursors-mode' is enabled.")
+        "Hook that is run after `multiple-cursors-mode' is enabled.")
       (defvar multiple-cursors-mode-disabled-hook nil
-	"Hook that is run after `multiple-cursors-mode' is disabled.")))
+        "Hook that is run after `multiple-cursors-mode' is disabled.")))
 
   ;; * Mark one more occurrence
   ;;
@@ -1074,7 +1090,7 @@ Setup borrowed from Kaushal Modi's setup
   ;;
   ;; It is recommended to add `mc/mark-next-like-this` to a key binding that's
   ;; right next to the key for `er/expand-region`.
-  
+
 #+END_SRC
 *** PDF tools
     Awesom pdf reader right inside emacs
@@ -1082,7 +1098,10 @@ Setup borrowed from Kaushal Modi's setup
       (use-package pdf-tools
 	:ensure
 	:init
-	(pdf-tools-install))
+	(pdf-tools-install)
+        :config
+        (setq auto-revert-interval 0.5) 
+)
     #+END_SRC
 
 ** Custom functions
