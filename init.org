@@ -145,7 +145,7 @@
    #+BEGIN_SRC emacs-lisp
     (when (memq window-system '(mac ns))
       (setq ns-pop-up-frames nil
-            mac-option-modifier nil
+            mac-option-modifier 'super
             mac-command-modifier 'meta
             select-enable-clipboard t)
       (exec-path-from-shell-initialize)
@@ -187,7 +187,7 @@
           ;; (set-frame-font "Overpass 13" nil t)
           ;; (load-file "~/.emacs.d/clean.el")
           ;; (
-          ;; (set-frame-font "Inconsolata 12" nil t)
+          (set-frame-font "Inconsolata 16" nil t)
            ;; (set-face-attribute 'default nil
            ;;            :family "Inconsolata 14"
            ;;            :height 110
@@ -600,7 +600,7 @@
   :ensure t
   :bind ("<f8>" . 'deft)
   :config
-  (setq deft-directory "/Users/vigneshganapathiraman/Dropbox/notes"
+  (setq deft-directory "~/deft"
         deft-extensions '("md" "org"))
   )
     #+END_SRC
@@ -617,12 +617,19 @@
 *** Python mode
     We will use anaconda mode for python.
     #+BEGIN_SRC emacs-lisp
-      (use-package pyvenv
+      ;; (use-package pyvenv
+      ;;   :ensure t
+      ;;   :config
+      ;;   :after (python)
+      ;;   (setenv "WORKON_HOME" "/Users/Z0041V0/.pyenv/shims/")
+      ;;   (pyvenv-workon "v-search-pytorch"))		;Can be changed later
+      (use-package pyenv-mode
         :ensure t
+        :init
+        (add-to-list 'exec-path "~/.pyenv/shims")
+        (setenv "WORKON_HOME" "~/.pyenv/versions/")
         :config
-        (setenv "WORKON_HOME" "/home/vigneshpop/miniconda3/envs")
-        (pyvenv-workon "torch"))		;Can be changed later
-
+        (pyenv-mode))
 
 
       (use-package elpy
@@ -646,20 +653,20 @@
         ;; if the function definition using tag information is not found. 
 
         (defun elpy-goto-definition-or-rgrep ()
-        "Go to the definition of the symbol at point, if found. Otherwise, run `elpy-rgrep-symbol'."
-        (interactive)
-        (ring-insert find-tag-marker-ring (point-marker))
-        (condition-case nil (elpy-goto-definition)
-          (error (elpy-rgrep-symbol
-                  (concat "\\(def\\|class\\)\s" (thing-at-point 'symbol) "(")))))
+          "Go to the definition of the symbol at point, if found. Otherwise, run `elpy-rgrep-symbol'."
+          (interactive)
+          (ring-insert find-tag-marker-ring (point-marker))
+          (condition-case nil (elpy-goto-definition)
+            (error (elpy-rgrep-symbol
+                    (concat "\\(def\\|class\\)\s" (thing-at-point 'symbol) "(")))))
 
         :bind (:map python-mode-map
-                   ("M-." . 'elpy-goto-assignment)
-        )
+                    ("M-." . 'elpy-goto-assignment)
+                    )
         )
 
 
-    #+END_SRC
+                    #+END_SRC
     
     Highlight indent guide mode for highlighting indentation. This is
     especially useful if we are having long blocks of python code.
@@ -677,7 +684,7 @@
         :after python
         :bind (:map python-mode-map
                     ("M-q". 'python-black-statement)
-                    ("M-Q" . 'python-black-buffer)))
+                    ("<f10>" . 'python-black-buffer)))
     #+END_SRC
 
 
@@ -779,21 +786,21 @@
 
        #+RESULTS:
     7. Org agenda 
-        #+BEGIN_SRC emacs-lisp
+       #+BEGIN_SRC emacs-lisp
         (setq org-agenda-files
               '("~/Documents/org/"))
 
-        #+END_SRC
+       #+END_SRC
 
 **** Org mode and latex 
-1. Make org latex export use latexmk while exporting documents to pdf 
-   #+BEGIN_SRC emacs-lisp
-   (setq org-latex-pdf-process
-         '("pdflatex -interaction nonstopmode -output-directory %o %f"
-           "bibtex %b"
-           "pdflatex -interaction nonstopmode -output-directory %o %f"
-           "pdflatex -interaction nonstopmode -output-directory %o %f"))
-   #+END_SRC
+     1. Make org latex export use latexmk while exporting documents to pdf 
+        #+BEGIN_SRC emacs-lisp
+        (setq org-latex-pdf-process
+              '("pdflatex -interaction nonstopmode -output-directory %o %f"
+                "bibtex %b"
+                "pdflatex -interaction nonstopmode -output-directory %o %f"
+                "pdflatex -interaction nonstopmode -output-directory %o %f"))
+        #+END_SRC
 *** latex
     We will use the wonderful auctex mode
     #+BEGIN_SRC emacs-lisp
@@ -854,15 +861,15 @@
     #+END_SRC
 
 *** Markdown
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
 (use-package markdown-mode
   :ensure t
   :defer t)
 (setq auto-mode-alist 
       (cons '("\\.md" . markdown-mode) auto-mode-alist))
-#+END_SRC
+    #+END_SRC
 *** matlab
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
 
 (defun vig/matlab-shell-send-line ()
   "send the current line to python repl"
@@ -871,8 +878,8 @@
    (progn (forward-visible-line 0) (point))
    (progn (forward-visible-line 1) (point)) )
   )
-#+END_SRC
-#+BEGIN_SRC emacs-lisp
+    #+END_SRC
+    #+BEGIN_SRC emacs-lisp
   (use-package matlab-mode
     :ensure t
     :mode ("\\.m\\'" . matlab-mode)
@@ -885,41 +892,49 @@
     (setq matlab-shell-command "matlab")
     (company-mode)
   )
-#+END_SRC
+    #+END_SRC
 
 *** Julia
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (use-package julia-mode
     :ensure t
     :defer t)
-#+END_SRC
+    #+END_SRC
 
 *** Go lang
     Emacs setup for golang
     #+BEGIN_SRC emacs-lisp
-        (use-package go-mode
-          :ensure
-          :config
-          (add-to-list 'auto-mode-alist '("\\.go\\'" . go-mode))
-          (add-hook 'go-mode-hook 'lsp-deferred)
+      (use-package go-mode
+        :ensure
+        :config
+        (add-to-list 'auto-mode-alist '("\\.go\\'" . go-mode))
+        (add-hook 'go-mode-hook 'lsp-deferred)
         (use-package lsp-mode
-        :ensure t
-        :commands (lsp lsp-deferred)
-        :hook (go-mode . lsp-deferred))
+          :ensure t
+          :commands (lsp lsp-deferred)
+          :hook (go-mode . lsp-deferred))
         (use-package company-lsp
-        :ensure t
-        :commands company-lsp)
+          :ensure t
+          :commands company-lsp)
+
 
         ;; Set some parameters
+
+
+        (setq lsp-ui-doc-enable nil
+              lsp-ui-peek-enable t
+              lsp-ui-sideline-enable t
+              lsp-ui-imenu-enable t
+              lsp-ui-flycheck-enable t)
+        :bind
+        (:map go-mode-map
+        ("<f10>" . 'lsp-format-buffer)
+        ("M-q" . 'lsp-format-region)
+        ("M-." . 'lsp-describe-thing-at-point))
   
+        )
 
-      (setq lsp-ui-doc-enable nil
-            lsp-ui-peek-enable t
-            lsp-ui-sideline-enable t
-            lsp-ui-imenu-enable t
-            lsp-ui-flycheck-enable t))
 
-    
     #+END_SRC
 *** ESS
 ESS (/Emacs speaks statistics/) is a comprehensive package for using statistcs related packagse in
@@ -942,35 +957,45 @@ recently I'm also using it to program in ~julia~.
 #+END_SRC
 *** Utils 
 #+BEGIN_SRC emacs-lisp
-(defun er-copy-file-name-to-clipboard ()
-  "Copy the current buffer file name to the clipboard."
-  (interactive)
-  (let ((filename (if (equal major-mode 'dired-mode)
-                      default-directory
-                    (buffer-file-name))))
-    (when filename
-      (kill-new filename)
-      (message "Copied buffer file name '%s' to the clipboard." filename))))
+  (defun er-copy-file-name-to-clipboard ()
+    "Copy the current buffer file name to the clipboard."
+    (interactive)
+    (let ((filename (if (equal major-mode 'dired-mode)
+                        default-directory
+                      (buffer-file-name))))
+      (when filename
+        (kill-new filename)
+        (message "Copied buffer file name '%s' to the clipboard." filename))))
 
 
-(defun copy-line (arg)
-      "Copy lines (as many as prefix argument) in the kill ring"
-      (interactive "p")
-      (kill-ring-save (line-beginning-position)
-                      (line-beginning-position (+ 1 arg)))
-      (message "%d line%s copied" arg (if (= 1 arg) "" "s")))
+  (defun copy-line (arg)
+    "Copy lines (as many as prefix argument) in the kill ring"
+    (interactive "p")
+    (kill-ring-save (line-beginning-position)
+                    (line-beginning-position (+ 1 arg)))
+    (message "%d line%s copied" arg (if (= 1 arg) "" "s")))
 
-(defun quick-cut-line ()
-  "Cut the whole line that point is on.  Consecutive calls to this command append each line to the kill-ring."
-  (interactive)
-  (let ((beg (line-beginning-position 1))
-	(end (line-beginning-position 2)))
-    (if (eq last-command 'quick-cut-line)
-	(kill-append (buffer-substring beg end) (< end beg))
-      (kill-new (buffer-substring beg end)))
-    (delete-region beg end))
-  (beginning-of-line 1)
-  (setq this-command 'quick-cut-line))
+  (defun quick-cut-line ()
+    "Cut the whole line that point is on.  Consecutive calls to this command append each line to the kill-ring."
+    (interactive)
+    (let ((beg (line-beginning-position 1))
+          (end (line-beginning-position 2)))
+      (if (eq last-command 'quick-cut-line)
+          (kill-append (buffer-substring beg end) (< end beg))
+        (kill-new (buffer-substring beg end)))
+      (delete-region beg end))
+    (beginning-of-line 1)
+    (setq this-command 'quick-cut-line))
+
+  (defun duplicate-line()
+    (interactive)
+    (move-beginning-of-line 1)
+    (kill-line)
+    (yank)
+    (open-line 1)
+    (next-line 1)
+    (yank)
+    )
 #+END_SRC
 *** Centaur tabs
 Nice tabs mode for modern UI switching
@@ -1136,6 +1161,7 @@ These are evil specific keybindings. All definitions use general.el
        "C-x r y" 'er-copy-file-name-to-clipboard
        "s-w" 'copy-line
        "s-W" 'quick-cut-line
+       "<s-down>" 'duplicate-line
        )
     #+END_SRC
 
