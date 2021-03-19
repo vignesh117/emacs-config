@@ -103,42 +103,42 @@
 
    #+BEGIN_SRC emacs-lisp
      (let* ((package--builtins nil)
-	    (packages
-	     '(ag			; powerful silver searcher plugib
-	       auto-compile		; automatically compile Emacs Lisp libraries
-	       company			; Modular text completion framework
-	       deadgrep			; Powerful grep 
-	       define-word		; display the definition of word at point
-	       doom-themes		;Another amazing theme
-	       modus-operandi-theme	;Theme by prot
-	       modus-vivendi-theme	;Another theme by prot
-	       dracula-theme		; Theme
-	       diminish			; Diminished modes from modeline
-	       expand-region		; Increase selected region by semantic units
-	       golden-ratio		; Automatic resizing windows to golden ratio
-	       gruvbox-theme		;Another inspirational theme 
-	       hydra			; Another nice aboabo package for persisten keys
-	       magit			; control Git from Emacs
-	       markdown-mode		; Emacs Major mode for Markdown-formatted files
-	       matlab-mode		; MATLAB integration with Emacs
-	       multiple-cursors		; Multiple cursors for Emacs
-	       org			; Outline-based notes management and organizer
-	       powerline		; Powerline for emacs
-	       rg			; An even faster search optinon compared to ag 
-	       try			; Try out Emacs packages
-	       use-package		; Great package manager with nifty features
-	       which-key
-	       undo-tree		; Neat undo
-	       )))         ; Display available keybindings in popup
+            (packages
+             '(ag			; powerful silver searcher plugib
+               auto-compile		; automatically compile Emacs Lisp libraries
+               company			; Modular text completion framework
+               deadgrep			; Powerful grep 
+               define-word		; display the definition of word at point
+               doom-themes		;Another amazing theme
+               evil                     ; Vim like edting
+               modus-operandi-theme	;Theme by prot
+               modus-vivendi-theme	;Another theme by prot
+               dracula-theme		; Theme
+               diminish			; Diminished modes from modeline
+               expand-region		; Increase selected region by semantic units
+               golden-ratio		; Automatic resizing windows to golden ratio
+               gruvbox-theme		;Another inspirational theme 
+               hydra			; Another nice aboabo package for persisten keys
+               magit			; control Git from Emacs
+               markdown-mode		; Emacs Major mode for Markdown-formatted files
+               multiple-cursors		; Multiple cursors for Emacs
+               org			; Outline-based notes management and organizer
+               powerline		; Powerline for emacs
+               rg			; An even faster search optinon compared to ag 
+               try			; Try out Emacs packages
+               use-package		; Great package manager with nifty features
+               which-key
+               undo-tree		; Neat undo
+               )))         ; Display available keybindings in popup
        (ignore-errors ;; This package is only relevant for Mac OS X.
-	 (when (memq window-system '(mac ns))
-	   (push 'exec-path-from-shell packages)
-	   (push 'reveal-in-osx-finder packages))
-	 (let ((packages (remove-if 'package-installed-p packages)))
-	   (when packages
-	     ;; Install uninstalled packages
-	     (package-refresh-contents)
-	     (mapc 'package-install packages)))))
+         (when (memq window-system '(mac ns))
+           (push 'exec-path-from-shell packages)
+           (push 'reveal-in-osx-finder packages))
+         (let ((packages (remove-if 'package-installed-p packages)))
+           (when packages
+             ;; Install uninstalled packages
+             (package-refresh-contents)
+             (mapc 'package-install packages)))))
    #+END_SRC
 ** Mac OS based config
    Switches meta to command from option
@@ -187,7 +187,7 @@
           ;; (set-frame-font "Overpass 13" nil t)
           ;; (load-file "~/.emacs.d/clean.el")
           ;; (
-          (set-frame-font "Inconsolata 16" nil t)
+          (set-frame-font "Fira Code 16" nil t)
            ;; (set-face-attribute 'default nil
            ;;            :family "Inconsolata 14"
            ;;            :height 110
@@ -271,15 +271,17 @@
       (dolist (mode
                '(abbrev-mode                  ; E.g. sopl -> System.out.println
                  ;column-number-mode           ; Show column number in mode line
+                 evil-mode                   ;vim like editing
                  delete-selection-mode        ; Replace selected text
                  dirtrack-mode                ; directory tracking in *shell*
                  global-company-mode          ; Auto-completion everywhere
+                 global-undo-tree-mode		; Global undo tree mode
                  global-display-line-numbers-mode
                  show-paren-mode              ; Highlight matching parentheses
                  which-key-mode))             ; Available keybindings in popup
         (funcall mode 1)
         (tooltip-mode -1))
-    #+END_SRC
+                 #+END_SRC
     
     Basic company mode config
     #+BEGIN_SRC emacs-lisp
@@ -381,6 +383,99 @@
     :ensure t
     :bind ("s-x" . amx))
     #+END_SRC
+*** Evil
+    #+begin_src emacs-lisp
+      (use-package evil
+        :ensure t
+        :defer .1 ;; don't block emacs when starting, load evil immediately after startup
+        :init
+        (setq evil-want-integration nil) ;; required by evil-collection
+        (setq evil-search-module 'evil-search)
+        (setq evil-ex-complete-emacs-commands nil)
+        (setq evil-vsplit-window-right t) ;; like vim's 'splitright'
+        (setq evil-split-window-below t) ;; like vim's 'splitbelow'
+        (setq evil-shift-round nil)
+        (setq evil-want-C-u-scroll t)
+        :config
+
+        ;; vim-like keybindings everywhere in emacs
+        (use-package evil-collection
+          :after evil
+          :ensure t
+          :config
+          (evil-collection-init))
+
+        ;; gl and gL operators, like vim-lion
+        (use-package evil-lion
+          :ensure t
+          :bind (:map evil-normal-state-map
+                      ("g l " . evil-lion-left)
+                      ("g L " . evil-lion-right)
+                      :map evil-visual-state-map
+                      ("g l " . evil-lion-left)
+                      ("g L " . evil-lion-right)))
+
+        ;; gc operator, like vim-commentary
+        (use-package evil-commentary
+          :ensure t
+          :bind (:map evil-normal-state-map
+                      ("gc" . evil-commentary)))
+
+        ;; gx operator, like vim-exchange
+        ;; NOTE using cx like vim-exchange is possible but not as straightforward
+        (use-package evil-exchange
+          :ensure t
+          :bind (:map evil-normal-state-map
+                      ("gx" . evil-exchange)
+                      ("gX" . evil-exchange-cancel)))
+
+        ;; gr operator, like vim's ReplaceWithRegister
+        (use-package evil-replace-with-register
+          :ensure t
+          :bind (:map evil-normal-state-map
+                      ("gr" . evil-replace-with-register)
+                      :map evil-visual-state-map
+                      ("gr" . evil-replace-with-register)))
+
+        ;; * operator in vusual mode
+        (use-package evil-visualstar
+          :ensure t
+          :bind (:map evil-visual-state-map
+                      ("*" . evil-visualstar/begin-search-forward)
+                      ("#" . evil-visualstar/begin-search-backward)))
+
+        ;; ex commands, which a vim user is likely to be familiar with
+        (use-package evil-expat
+          :ensure t
+          :defer t)
+
+        ;; visual hints while editing
+        (use-package evil-goggles
+          :ensure t
+          :config
+          (evil-goggles-use-diff-faces)
+          (evil-goggles-mode))
+
+        ;; like vim-surround
+        (use-package evil-surround
+          :ensure t
+          :commands
+          (evil-surround-edit
+           evil-Surround-edit
+           evil-surround-region
+           evil-Surround-region)
+          :init
+          (evil-define-key 'operator global-map "s" 'evil-surround-edit)
+          (evil-define-key 'operator global-map "S" 'evil-Surround-edit)
+          (evil-define-key 'visual global-map "S" 'evil-surround-region)
+          (evil-define-key 'visual global-map "gS" 'evil-Surround-region))
+
+         ;; This is a cool package that lets us jump to matched paranthesis
+         ;; with a =%=. 
+         (use-package evil-matchit
+           :requires evil
+           :ensure t)
+    #+end_src
 *** Async
     Essential package for supporting asynchronous operations in
     emacs. This is especially useful when carrying out cpu intensive
@@ -414,6 +509,27 @@
       (use-package yasnippet                  ; Snippets
         :ensure t
         :config
+
+        ;; Function for getting yasnippet to generate google style docstrings
+        (defun python-args-to-google-docstring (text &optional make-fields)
+        "Return a reST docstring format for the python arguments in yas-text."
+        (let* ((indent (concat "\n" (make-string (current-column) 32)))
+               (args (python-split-args text))
+           (nr 0)
+               (formatted-args
+            (mapconcat
+             (lambda (x)
+               (concat "   " (nth 0 x)
+                   (if make-fields (format " ${%d:arg%d}" (cl-incf nr) nr))
+                   (if (nth 1 x) (concat " \(default " (nth 1 x) "\)"))))
+             args
+             indent)))
+          (unless (string= formatted-args "")
+            (concat
+             (mapconcat 'identity
+                (list "" "Args:" formatted-args)
+                indent)
+             "\n"))))
         (setq
          yas-verbosity 1                      ; No need to be so verbose
          yas-wrap-around-region t)
@@ -501,9 +617,38 @@
                ("M-g z" . dumb-jump-go-prefer-external-other-window)
                ("M-g M-l" . dumb-jump-quick-look)
                )
-        :config (setq dumb-jump-selector 'ivy) ;; (setq dumb-jump-selector 'helm)
-        :ensure)
+        :config
+        (setq dumb-jump-selector 'ivy) ;; (setq dumb-jump-selector 'helm)
+        (setq xref-backend-functions (remq 'etags--xref-backend xref-backend-functions))
+        (add-to-list 'xref-backend-functions #'dumb-jump-xref-activate t)
+        (dumb-jump-mode)
+        :ensure t)
     #+END_SRC
+
+*** tree-sitter mode
+    Better syntax highlighting for programming modes.
+    #+begin_src emacs-lisp :tangle yes
+      (use-package tree-sitter
+        :ensure t
+        :init
+        (global-tree-sitter-mode)
+        :config
+        (use-package tree-sitter-langs :ensure t)
+        (add-hook 'rust-mode-hook #'tree-sitter-mode)
+        (add-hook 'python-mode-hook #'tree-sitter-mode)
+        (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
+      )
+    #+end_src
+
+*** Frog jump
+    Most efficient way to jump buffer with just a couple of key-strokes
+    #+begin_src emacs-lisp
+  (use-package frog-jump-buffer
+    :ensure
+    :bind
+    (("<f9>" . 'frog-jump-buffer)))
+    #+end_src
+
 *** Iedit mode
     #+BEGIN_SRC emacs-lisp
       (use-package iedit
@@ -543,7 +688,7 @@
       (use-package emacs
 	:bind
 	("C-x C-j" . 'counsel-dired-jump))
-        #+END_SRC
+    #+END_SRC
 *** Dired subtree
     Use tab and s-tab to open and close directories
     #+BEGIN_SRC emacs-lisp
@@ -566,7 +711,7 @@
     #+END_SRC
 *** Dired peep
     Preview files inside dired
-   #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
      (use-package peep-dired
        :ensure
        :after dired
@@ -577,7 +722,7 @@
              '("mkv" "webm" "mp4" "mp3" "ogg" "iso"))
        :bind (:map dired-mode-map
                    ("P" . peep-dired)))
-   #+END_SRC
+    #+END_SRC
 *** Tramp 
     This has some refinements for tramp mode
     #+BEGIN_SRC emacs-lisp
@@ -596,14 +741,37 @@
     #+END_SRC
 *** Deft mode
     #+BEGIN_SRC emacs-lisp
-(use-package deft
-  :ensure t
-  :bind ("<f8>" . 'deft)
-  :config
-  (setq deft-directory "~/deft"
-        deft-extensions '("md" "org"))
-  )
+      (use-package deft
+        :ensure t
+        :bind ("<f8>" . 'deft)
+        :config
+        (setq deft-directory "~/deft"
+              deft-extensions '("org")
+              deft-default-extension "org"
+              deft-recursive t
+              deft-use-filter-string-for-filename t)
+        (auto-fill-mode 1)
+        )
     #+END_SRC
+*** LSP mode
+    #+begin_src emacs-lisp
+      (use-package lsp-mode
+        :ensure t
+        :commands (lsp lsp-deferred)
+        :config
+        (setq lsp-ui-doc-enable nil
+            lsp-ui-peek-enable t
+            lsp-ui-sideline-enable t
+            lsp-ui-imenu-enable t
+            lsp-ui-flycheck-enable t))
+
+      (use-package company-lsp
+        :ensure t
+        :commands company-lsp)
+    #+end_src
+
+
+
 *** Flycheck
     Flycheck mode is apparently faster and more efficient than flymake
     mode that comes by default with emacs
@@ -614,6 +782,20 @@
         (global-flycheck-mode 1)
         (flymake-mode -1))
     #+END_SRC
+*** Docker
+    1. Docker-mode to highlight docker files
+       #+begin_src emacs-lisp
+         (use-package dockerfile-mode
+           :ensure
+           :config
+           (add-to-list 'auto-mode-alist '("Dockerfile\\'" . dockerfile-mode)))
+       #+end_src
+    2. Docker-tramp mode to enable us to edit inside docker containers
+       #+begin_src emacs-lisp :tangle yes
+         (use-package docker-tramp
+           :ensure t)
+       #+end_src
+
 *** Python mode
     We will use anaconda mode for python.
     #+BEGIN_SRC emacs-lisp
@@ -625,9 +807,11 @@
       ;;   (pyvenv-workon "v-search-pytorch"))		;Can be changed later
       (use-package pyenv-mode
         :ensure t
+        :after (python)
         :init
         (add-to-list 'exec-path "~/.pyenv/shims")
         (setenv "WORKON_HOME" "~/.pyenv/versions/")
+        (pyenv-mode-set "v-search-pytorch")
         :config
         (pyenv-mode))
 
@@ -661,12 +845,12 @@
                     (concat "\\(def\\|class\\)\s" (thing-at-point 'symbol) "(")))))
 
         :bind (:map python-mode-map
-                    ("M-." . 'elpy-goto-assignment)
+                    ("M-." . 'elpy-goto-definition-or-rgrep)
                     )
         )
 
 
-                    #+END_SRC
+    #+END_SRC
     
     Highlight indent guide mode for highlighting indentation. This is
     especially useful if we are having long blocks of python code.
@@ -683,12 +867,8 @@
         :ensure
         :after python
         :bind (:map python-mode-map
-                    ("M-q". 'python-black-statement)
-                    ("<f10>" . 'python-black-buffer)))
+                    ("M-q". 'python-black-statement)))
     #+END_SRC
-
-
-    
 
     Some more improvements
     #+BEGIN_SRC emacs-lisp
@@ -701,10 +881,36 @@
                                                  ; python, let the virtual
                                                  ; env figure out the right
                                                  ; python based on the context
+      (defun vig/format-python-text ()
+        "untabify and wrap python comments"
+        (interactive)
+        (untabify (point-min) (point-max))
+        (goto-char (point-min))
+        (while (re-search-forward comment-start nil t)
+          (call-interactively 'fill-paragraph)
+          (forward-line 1)))
         :bind (:map python-mode-map
                     ("C-c n f" . 'narrow-to-defun)
-                    ("C-c n w" . 'widen)))
+                    ("C-c n w" . 'widen)
+                    ("<f10>" . 'elpy-yapf-fix-code)
+                    ("<RET>" . 'newline-and-indent)
+                    ("<f4>" . 'vig/format-python-text
+                    )))
     #+END_SRC
+    Auto docstring generation for python
+    #+begin_src emacs-lisp
+     (use-package buftra
+       :ensure nil
+       :load-path "~/.emacs.d/local/buftra.el/"
+       )
+
+     (use-package py-pyment
+       :ensure nil
+       :load-path "~/.emacs.d/local/py-cmd-buffer.el"
+       :config
+       (setq py-pyment-options '("--output=numpydoc")))
+    #+end_src
+   
 *** Ipython notebook mode
     This is a frontend to jupyter notebooks with emacs keybindings and
     other features.
@@ -724,25 +930,25 @@
          (use-package org
            :defer t
            :config
-             (org-babel-do-load-languages
-             'org-babel-load-languages
-             '((R . t)
-             (emacs-lisp . t)
-                   (matlab . t)
-                   (latex . t)
-             (python . t))
-             )
+           (org-indent-mode t)
+           (org-babel-do-load-languages
+            'org-babel-load-languages
+            '((R . t)
+              (emacs-lisp . t)
+              (latex . t)
+              (python . t))
+            )
 
-             ;; When editing org-files with source-blocks, we want the source
-             ;; blocks to be themed as they would in their native mode.
+           ;; When editing org-files with source-blocks, we want the source
+           ;; blocks to be themed as they would in their native mode.
 
-             (setq org-src-fontify-natively t
-                   ;; org-src-tab-acts-natively t
-                   org-confirm-babel-evaluate nil
-                   org-adapt-indentation t
-                   org-hide-leading-stars nil
-                   )
-             )
+           (setq org-src-fontify-natively t
+                 ;; org-src-tab-acts-natively t
+                 org-confirm-babel-evaluate nil
+                 org-adapt-indentation t
+                 org-hide-leading-stars nil
+                 )
+           )
        #+END_SRC
     2. Some default configs while editing files in org mode
        #+BEGIN_SRC emacs-lisp
@@ -868,32 +1074,6 @@
 (setq auto-mode-alist 
       (cons '("\\.md" . markdown-mode) auto-mode-alist))
     #+END_SRC
-*** matlab
-    #+BEGIN_SRC emacs-lisp
-
-(defun vig/matlab-shell-send-line ()
-  "send the current line to python repl"
-  (interactive)
-  (matlab-shell-run-region
-   (progn (forward-visible-line 0) (point))
-   (progn (forward-visible-line 1) (point)) )
-  )
-    #+END_SRC
-    #+BEGIN_SRC emacs-lisp
-  (use-package matlab-mode
-    :ensure t
-    :mode ("\\.m\\'" . matlab-mode)
-    :bind ("C-RET" . 'matlab-shell-run-region-or-line)
-    :after matlab
-    :init
-    :config
-    (setq matlab-shell-echoes nil)
-    (setq matlab-indent-function t)
-    (setq matlab-shell-command "matlab")
-    (company-mode)
-  )
-    #+END_SRC
-
 *** Julia
     #+BEGIN_SRC emacs-lisp
   (use-package julia-mode
@@ -909,32 +1089,12 @@
         :config
         (add-to-list 'auto-mode-alist '("\\.go\\'" . go-mode))
         (add-hook 'go-mode-hook 'lsp-deferred)
-        (use-package lsp-mode
-          :ensure t
-          :commands (lsp lsp-deferred)
-          :hook (go-mode . lsp-deferred))
-        (use-package company-lsp
-          :ensure t
-          :commands company-lsp)
 
-
-        ;; Set some parameters
-
-
-        (setq lsp-ui-doc-enable nil
-              lsp-ui-peek-enable t
-              lsp-ui-sideline-enable t
-              lsp-ui-imenu-enable t
-              lsp-ui-flycheck-enable t)
         :bind
         (:map go-mode-map
-        ("<f10>" . 'lsp-format-buffer)
-        ("M-q" . 'lsp-format-region)
-        ("M-." . 'lsp-describe-thing-at-point))
-  
-        )
-
-
+              ("<f10>" . 'lsp-format-buffer)
+              ("M-q" . 'lsp-format-region)
+              ("M-." . 'lsp-describe-thing-at-point)))
     #+END_SRC
 *** ESS
 ESS (/Emacs speaks statistics/) is a comprehensive package for using statistcs related packagse in
@@ -1162,6 +1322,7 @@ These are evil specific keybindings. All definitions use general.el
        "s-w" 'copy-line
        "s-W" 'quick-cut-line
        "<s-down>" 'duplicate-line
+       "M-I" 'counsel-imenu
        )
     #+END_SRC
 
