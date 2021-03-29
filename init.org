@@ -83,9 +83,9 @@
    loaded, along with =package=, which is obviously needed.
 
    #+BEGIN_SRC emacs-lisp
-    (require 'cl)
-    (require 'package)
-    (package-initialize)
+     ;; (require 'cl)
+     (require 'package)
+     (package-initialize)
    #+END_SRC
 
    Packages can be fetched from different mirrors, [[http://melpa.milkbox.net/#/][melpa]] is the largest
@@ -128,7 +128,7 @@
                try			; Try out Emacs packages
                use-package		; Great package manager with nifty features
                which-key
-               undo-tree		; Neat undo
+               undo-fu                  ; A lightweight alternative to undo-tree
                )))         ; Display available keybindings in popup
        (ignore-errors ;; This package is only relevant for Mac OS X.
          (when (memq window-system '(mac ns))
@@ -140,6 +140,9 @@
              (package-refresh-contents)
              (mapc 'package-install packages)))))
    #+END_SRC
+
+   #+RESULTS:
+
 ** Mac OS based config
    Switches meta to command from option
    #+BEGIN_SRC emacs-lisp
@@ -161,6 +164,7 @@
    (setq-default fill-column 80                    ; Maximum line width
                  truncate-lines t                  ; Don't fold lines
                  split-width-threshold 160         ; Split verticly by default
+                 evil-want-keybinding nil
                  split-height-threshold nil        ; Split verticly by default
                  auto-fill-function 'do-auto-fill  ; Auto-fill-mode everywhere
                  )	; Relative line numbering by default
@@ -187,7 +191,8 @@
           ;; (set-frame-font "Overpass 13" nil t)
           ;; (load-file "~/.emacs.d/clean.el")
           ;; (
-          (set-frame-font "Fira Code 16" nil t)
+          ;; (set-frame-font "Inconsolata 18" nil t)
+          (setq default-frame-alist '((font . "Cousine-16")))
            ;; (set-face-attribute 'default nil
            ;;            :family "Inconsolata 14"
            ;;            :height 110
@@ -269,31 +274,33 @@
     throughout the config on all the major modes.
     #+BEGIN_SRC emacs-lisp
       (dolist (mode
-               '(abbrev-mode                  ; E.g. sopl -> System.out.println
+               '(
+                 ; abbrev-mode                  ; E.g. sopl -> System.out.println
                  ;column-number-mode           ; Show column number in mode line
                  evil-mode                   ;vim like editing
                  delete-selection-mode        ; Replace selected text
                  dirtrack-mode                ; directory tracking in *shell*
                  global-company-mode          ; Auto-completion everywhere
-                 global-undo-tree-mode		; Global undo tree mode
+                 ;; global-undo-tree-mode		; Global undo tree mode
                  global-display-line-numbers-mode
                  show-paren-mode              ; Highlight matching parentheses
                  which-key-mode))             ; Available keybindings in popup
         (funcall mode 1)
+        (line-number-mode -1)
         (tooltip-mode -1))
                  #+END_SRC
     
     Basic company mode config
     #+BEGIN_SRC emacs-lisp
-    ;; (setq company-minimum-prefix-length 3
-    ;;       company-selection-wrap-around t)  ;wrapping around list of selections when scrolling
-    ;; (setq company-selection-wrap-around t)
-    ;; (setq company-dabbrev-downcase 0)
-    ;; (setq company-idle-delay nil)
+      (setq company-minimum-prefix-length 3
+            company-selection-wrap-around t)  ;wrapping around list of selections when scrolling
+      (setq company-selection-wrap-around t)
+      (setq company-dabbrev-downcase 0)
+      (setq company-idle-delay 0.3)
 
-    ;;  (global-set-key "\t" 'company-complete-common)
-    ;; ;; got this from https://www.reddit.com/r/emacs/comments/3r9fic/best_practicestip_for_companymode_andor_yasnippet/
-    ;; ;; (setq company-transformers '(company-sort-by-occurrence))
+      ;;  (global-set-key "\t" 'company-complete-common)
+      ;; ;; got this from https://www.reddit.com/r/emacs/comments/3r9fic/best_practicestip_for_companymode_andor_yasnippet/
+      ;; ;; (setq company-transformers '(company-sort-by-occurrence))
 
 
     #+END_SRC
@@ -379,9 +386,9 @@
     This is an alternative to the popular smex mode, which is apparently
     no longer under active development. 
     #+BEGIN_SRC emacs-lisp
-  (use-package amx
-    :ensure t
-    :bind ("s-x" . amx))
+      ;; (use-package amx
+      ;;   :ensure t
+      ;;   :bind ("s-x" . amx))
     #+END_SRC
 *** Evil
     #+begin_src emacs-lisp
@@ -389,21 +396,24 @@
         :ensure t
         :defer .1 ;; don't block emacs when starting, load evil immediately after startup
         :init
-        (setq evil-want-integration nil) ;; required by evil-collection
+        ;; (setq evil-want-integration nil) ;; required by evil-collection
+        ;; (setq evil-want-keybinding nil)  ;; required by evil-collection
         (setq evil-search-module 'evil-search)
-        (setq evil-ex-complete-emacs-commands nil)
-        (setq evil-vsplit-window-right t) ;; like vim's 'splitright'
-        (setq evil-split-window-below t) ;; like vim's 'splitbelow'
-        (setq evil-shift-round nil)
-        (setq evil-want-C-u-scroll t)
-        :config
+        ;; (setq evil-ex-complete-emacs-commands nil)
+        ;; (setq evil-vsplit-window-right t) ;; like vim's 'splitright'
+        ;; (setq evil-split-window-below t) ;; like vim's 'splitbelow'
+        ;; (setq evil-shift-round nil)
+        ;; (setq evil-want-C-u-scroll t))
+        )
 
         ;; vim-like keybindings everywhere in emacs
-        (use-package evil-collection
-          :after evil
-          :ensure t
-          :config
-          (evil-collection-init))
+        ;; (use-package evil-collection
+        ;;   :after evil
+        ;;   :ensure t
+        ;;   :init
+        ;;   (setq evil-want-keybinding nil)
+        ;;   :config
+        ;;   (evil-collection-init))
 
         ;; gl and gL operators, like vim-lion
         (use-package evil-lion
@@ -421,13 +431,13 @@
           :bind (:map evil-normal-state-map
                       ("gc" . evil-commentary)))
 
-        ;; gx operator, like vim-exchange
+
         ;; NOTE using cx like vim-exchange is possible but not as straightforward
-        (use-package evil-exchange
-          :ensure t
-          :bind (:map evil-normal-state-map
-                      ("gx" . evil-exchange)
-                      ("gX" . evil-exchange-cancel)))
+        ;; (use-package evil-exchange
+        ;;   :ensure t
+        ;;   :bind (:map evil-normal-state-map
+        ;;               ("gx" . evil-exchange)
+        ;;               ("gX" . evil-exchange-cancel)))
 
         ;; gr operator, like vim's ReplaceWithRegister
         (use-package evil-replace-with-register
@@ -438,43 +448,44 @@
                       ("gr" . evil-replace-with-register)))
 
         ;; * operator in vusual mode
-        (use-package evil-visualstar
-          :ensure t
-          :bind (:map evil-visual-state-map
-                      ("*" . evil-visualstar/begin-search-forward)
-                      ("#" . evil-visualstar/begin-search-backward)))
+        ;; (use-package evil-visualstar
+        ;;   :ensure t
+        ;;   :bind (:map evil-visual-state-map
+        ;;               ("*" . evil-visualstar/begin-search-forward)
+        ;;               ("#" . evil-visualstar/begin-search-backward)))
 
         ;; ex commands, which a vim user is likely to be familiar with
-        (use-package evil-expat
-          :ensure t
-          :defer t)
+        ;; (use-package evil-expat
+        ;;   :ensure t
+        ;;   :defer t)
 
         ;; visual hints while editing
-        (use-package evil-goggles
-          :ensure t
-          :config
-          (evil-goggles-use-diff-faces)
-          (evil-goggles-mode))
+        ;; (use-package evil-goggles
+        ;;   :ensure t
+        ;;   :config
+        ;;   (evil-goggles-use-diff-faces)
+        ;;   (evil-goggles-mode))
 
         ;; like vim-surround
-        (use-package evil-surround
-          :ensure t
-          :commands
-          (evil-surround-edit
-           evil-Surround-edit
-           evil-surround-region
-           evil-Surround-region)
-          :init
-          (evil-define-key 'operator global-map "s" 'evil-surround-edit)
-          (evil-define-key 'operator global-map "S" 'evil-Surround-edit)
-          (evil-define-key 'visual global-map "S" 'evil-surround-region)
-          (evil-define-key 'visual global-map "gS" 'evil-Surround-region))
+        ;; (use-package evil-surround
+        ;;   :ensure t
+        ;;   :commands
+        ;;   (evil-surround-edit
+        ;;    evil-Surround-edit
+        ;;    evil-surround-region
+        ;;    evil-Surround-region)
+        ;;   :init
+        ;;   (evil-define-key 'operator global-map "s" 'evil-surround-edit)
+        ;;   (evil-define-key 'operator global-map "S" 'evil-Surround-edit)
+        ;;   (evil-define-key 'visual global-map "S" 'evil-surround-region)
+        ;;   (evil-define-key 'visual global-map "gS" 'evil-surround-region))
 
          ;; This is a cool package that lets us jump to matched paranthesis
          ;; with a =%=. 
-         (use-package evil-matchit
-           :requires evil
-           :ensure t)
+         ;; (use-package evil-matchit
+         ;;   :requires evil
+         ;;   :ensure t)
+
     #+end_src
 *** Async
     Essential package for supporting asynchronous operations in
@@ -489,21 +500,29 @@
     #+END_SRC
 *** Selectrum
     #+BEGIN_SRC emacs-lisp
-  (use-package selectrum
-    :ensure
-    :config
+      (use-package selectrum
+        :ensure
+        :config
 
-    (use-package prescient
-      :ensure t
-      :config
-      (prescient-persist-mode +1)
-      )
-    (use-package selectrum-prescient
-      :ensure
-      :after selectrum)
-    (selectrum-mode -1)
-    (selectrum-prescient-mode -1))
+        (use-package prescient
+          :ensure t
+          :config
+          (prescient-persist-mode +1)
+          (setq prescient-filter-method '(fuzzy literal regexp initialism))
+          )
+        (use-package selectrum-prescient
+          :ensure
+          :after selectrum)
+        (selectrum-mode 1)
+        (selectrum-prescient-mode 1))
     #+END_SRC
+*** Company prescient
+    #+begin_src emacs-lisp
+      (use-package company-prescient
+        :ensure t
+        :after (company))
+    #+end_src
+
 *** Yasnippet
     #+BEGIN_SRC emacs-lisp
       (use-package yasnippet                  ; Snippets
@@ -545,36 +564,36 @@
     #+END_SRC
 *** Ivy
     #+BEGIN_SRC emacs-lisp
-  (use-package ivy :ensure t
-    :diminish (ivy-mode . "")
-    :bind
-    (:map ivy-mode-map
-     ("C-'" . ivy-avy)
-     ("s-b" . ivy-switch-buffer-other-window)
-     ("s-f" . find-file-other-window))
-    :config
-    (use-package ivy-prescient
-      :ensure t
-      :after ivy)
-    (ivy-mode 1)
-    (ivy-prescient-mode 1)
-    ;; add ‘recentf-mode’ and bookmarks to ‘ivy-switch-buffer’.
-    (setq ivy-use-virtual-buffers t)
-    ;; number of result lines to display
-    (setq ivy-height 10)
-    ;; does not count candidates
-    (setq ivy-count-format "")
-    ;; no regexp by default
-    (setq ivy-initial-inputs-alist nil)
-    ;; configure regexp engine.
-    (setq ivy-re-builders-alist
-	  ;; allow input not in order
-	  '((t   . ivy--regex-ignore-order))))
+      ;; (use-package ivy :ensure t
+      ;;   :diminish (ivy-mode . "")
+      ;;   :bind
+      ;;   (:map ivy-mode-map
+      ;;    ("C-'" . ivy-avy)
+      ;;    ("s-b" . ivy-switch-buffer-other-window)
+      ;;    ("s-f" . find-file-other-window))
+      ;;   :config
+      ;;   (use-package ivy-prescient
+      ;;     :ensure t
+      ;;     :after ivy)
+      ;;   ;; (ivy-mode 1)
+      ;;   (ivy-prescient-mode 1)
+      ;;   ;; add ‘recentf-mode’ and bookmarks to ‘ivy-switch-buffer’.
+      ;;   (setq ivy-use-virtual-buffers t)
+      ;;   ;; number of result lines to display
+      ;;   (setq ivy-height 10)
+      ;;   ;; does not count candidates
+      ;;   (setq ivy-count-format "")
+      ;;   ;; no regexp by default
+      ;;   (setq ivy-initial-inputs-alist nil)
+      ;;   ;; configure regexp engine.
+      ;;   (setq ivy-re-builders-alist
+      ;;         ;; allow input not in order
+      ;;         '((t   . ivy--regex-ignore-order))))
     #+END_SRC
 *** Counsel
     1. Basic counsel definition
        #+BEGIN_SRC emacs-lisp
-         (use-package counsel :ensure t)
+         ;; (use-package counsel :ensure t)
 
        #+END_SRC
 
@@ -584,23 +603,53 @@
        the TAGS file is not found in the directory, the package will
        create it for you. 
        #+BEGIN_SRC emacs-lisp
-                  (use-package counsel-etags
-                    :ensure t
-                    :bind
-                    ("C-." . 'counsel-etags-find-tag-at-point)
-                    ("s-i" . 'counsel-outline)
-                    ("s-." . 'counsel-git-grep)
-         )
+         ;;          (use-package counsel-etags
+         ;;            :ensure t
+         ;;            :bind
+         ;;            ("C-." . 'counsel-etags-find-tag-at-point)
+         ;;            ("s-i" . 'counsel-outline)
+         ;;            ("s-." . 'counsel-git-grep)
+         ;; )
        #+END_SRC
+*** Consult
+    Completion framework similar to counsel, but with more features
+    #+begin_src emacs-lisp :tangle yes
+      (use-package consult
+        :ensure t
+        :config
+        (recentf-mode t))
+    #+end_src
+*** Embark 
+    #+begin_src emacs-lisp :tangle yes
+      (use-package marginalia
+        :ensure t
+        :config
+        (marginalia-mode))
 
+      (use-package embark
+        :ensure t
+        :bind
+        ("M-S-<return>" . embark-act))              ; pick some comfortable binding
+
+      ;; Consult users will also want the embark-consult package.
+      (use-package embark-consult
+        :ensure t
+        :after (embark consult)
+        :demand t ; only necessary if you have the hook below
+        ;; if you want to have consult previews as you move around an
+        ;; auto-updating embark collect buffer
+        :hook
+        (embark-collect-mode . embark-consult-preview-minor-mode))
+    #+end_src
+    
 *** Ctrlf
     This is a new search application. I'm going to try this in place of isearch
     #+BEGIN_SRC emacs-lisp
-      (use-package ctrlf
-        :ensure
-        :init
-        (ctrlf-mode +1)
-        )
+      ;; (use-package ctrlf
+      ;;   :ensure
+      ;;   :init
+      ;;   (ctrlf-mode +1)
+      ;;   )
     #+END_SRC
 
 *** Dumb jump
@@ -608,36 +657,36 @@
     support more that 40 languages including python and matlab.
 
     #+BEGIN_SRC emacs-lisp
-      (use-package dumb-jump
-        :bind (("M-g o" . dumb-jump-go-other-window)
-               ("M-g j" . dumb-jump-go)
-               ("M-g b" . dumb-jump-back)
-               ("M-g i" . dumb-jump-go-prompt)
-               ("M-g x" . dumb-jump-go-prefer-external)
-               ("M-g z" . dumb-jump-go-prefer-external-other-window)
-               ("M-g M-l" . dumb-jump-quick-look)
-               )
-        :config
-        (setq dumb-jump-selector 'ivy) ;; (setq dumb-jump-selector 'helm)
-        (setq xref-backend-functions (remq 'etags--xref-backend xref-backend-functions))
-        (add-to-list 'xref-backend-functions #'dumb-jump-xref-activate t)
-        (dumb-jump-mode)
-        :ensure t)
+      ;; (use-package dumb-jump
+      ;;   :bind (("M-g o" . dumb-jump-go-other-window)
+      ;;          ("M-g j" . dumb-jump-go)
+      ;;          ("M-g b" . dumb-jump-back)
+      ;;          ("M-g i" . dumb-jump-go-prompt)
+      ;;          ("M-g x" . dumb-jump-go-prefer-external)
+      ;;          ("M-g z" . dumb-jump-go-prefer-external-other-window)
+      ;;          ("M-g M-l" . dumb-jump-quick-look)
+      ;;          )
+      ;;   :config
+      ;;   (setq dumb-jump-selector 'ivy) ;; (setq dumb-jump-selector 'helm)
+      ;;   (setq xref-backend-functions (remq 'etags--xref-backend xref-backend-functions))
+      ;;   (add-to-list 'xref-backend-functions #'dumb-jump-xref-activate t)
+      ;;   (dumb-jump-mode)
+      ;;   :ensure t)
     #+END_SRC
 
 *** tree-sitter mode
     Better syntax highlighting for programming modes.
     #+begin_src emacs-lisp :tangle yes
-      (use-package tree-sitter
-        :ensure t
-        :init
-        (global-tree-sitter-mode)
-        :config
-        (use-package tree-sitter-langs :ensure t)
-        (add-hook 'rust-mode-hook #'tree-sitter-mode)
-        (add-hook 'python-mode-hook #'tree-sitter-mode)
-        (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
-      )
+      ;; (use-package tree-sitter
+      ;;   :ensure t
+      ;;   :init
+      ;;   (global-tree-sitter-mode)
+      ;;   :config
+      ;;   (use-package tree-sitter-langs :ensure t)
+      ;;   (add-hook 'rust-mode-hook #'tree-sitter-mode)
+      ;;   (add-hook 'python-mode-hook #'tree-sitter-mode)
+      ;;   (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
+      ;; )
     #+end_src
 
 *** Frog jump
@@ -682,12 +731,6 @@
         :ensure 
         :bind (:map dired-mode-map
                     ("/" . dired-narrow)))
-    #+END_SRC
-*** Dired jump
-    #+BEGIN_SRC emacs-lisp
-      (use-package emacs
-	:bind
-	("C-x C-j" . 'counsel-dired-jump))
     #+END_SRC
 *** Dired subtree
     Use tab and s-tab to open and close directories
@@ -771,7 +814,6 @@
     #+end_src
 
 
-
 *** Flycheck
     Flycheck mode is apparently faster and more efficient than flymake
     mode that comes by default with emacs
@@ -780,6 +822,7 @@
         :ensure
         :config
         (global-flycheck-mode 1)
+        (setq flycheck-global-modes '(not LaTeX-mode latex-mode python-mode))
         (flymake-mode -1))
     #+END_SRC
 *** Docker
@@ -799,55 +842,53 @@
 *** Python mode
     We will use anaconda mode for python.
     #+BEGIN_SRC emacs-lisp
-      ;; (use-package pyvenv
-      ;;   :ensure t
-      ;;   :config
-      ;;   :after (python)
-      ;;   (setenv "WORKON_HOME" "/Users/Z0041V0/.pyenv/shims/")
-      ;;   (pyvenv-workon "v-search-pytorch"))		;Can be changed later
-      (use-package pyenv-mode
-        :ensure t
-        :after (python)
-        :init
-        (add-to-list 'exec-path "~/.pyenv/shims")
-        (setenv "WORKON_HOME" "~/.pyenv/versions/")
-        (pyenv-mode-set "v-search-pytorch")
-        :config
-        (pyenv-mode))
+            ;; (use-package pyvenv
+            ;;   :ensure t
+            ;;   :config
+            ;;   :after (python)
+            ;;   (setenv "WORKON_HOME" "/Users/Z0041V0/.pyenv/shims/")
+            ;;   (pyvenv-workon "v-search-pytorch"))		;Can be changed later
+            (use-package pyenv-mode
+              :ensure t
+              :defer t
+              :init
+              (add-to-list 'exec-path "~/.pyenv/shims")
+              (setenv "WORKON_HOME" "~/.pyenv/versions/")
+              (pyenv-mode-set "v-search-pytorch"))
 
 
-      (use-package elpy
-        :ensure t
-        :after (python)
-        :config
-        (elpy-enable)
-        (setq elpy-rpc-virtualenv-path 'current)
+            (use-package elpy
+              :ensure t
+              :defer t
+              :config
+              (setq elpy-rpc-virtualenv-path 'current)
 
 
-        ;; Some recommended configuration options by elpy
+              ;; Some recommended configuration options by elpy
 
-                                              ; Use flycheck instead of flymake
-        (when (load "flycheck" t t)
-          (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
-          (add-hook 'elpy-mode-hook 'flycheck-mode))
+              ; Use flycheck instead of flymake
+              ;; Global modes are configured with main flycheck config itself.
+              ;; (when (load "flycheck" t t)
+              ;;   (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+              ;;   (add-hook 'elpy-mode-hook 'flycheck-mode))
 
-        ;; Use this improved function for function navigation
-        ;; ;; 
-        ;; This function additionally searches for the symbol (or function) using rgrep
-        ;; if the function definition using tag information is not found. 
+              ;; Use this improved function for function navigation
+              ;; ;; 
+              ;; This function additionally searches for the symbol (or function) using rgrep
+              ;; if the function definition using tag information is not found. 
 
-        (defun elpy-goto-definition-or-rgrep ()
-          "Go to the definition of the symbol at point, if found. Otherwise, run `elpy-rgrep-symbol'."
-          (interactive)
-          (ring-insert find-tag-marker-ring (point-marker))
-          (condition-case nil (elpy-goto-definition)
-            (error (elpy-rgrep-symbol
-                    (concat "\\(def\\|class\\)\s" (thing-at-point 'symbol) "(")))))
+              (defun elpy-goto-definition-or-rgrep ()
+                "Go to the definition of the symbol at point, if found. Otherwise, run `elpy-rgrep-symbol'."
+                (interactive)
+                (ring-insert find-tag-marker-ring (point-marker))
+                (condition-case nil (elpy-goto-definition)
+                  (error (elpy-rgrep-symbol
+                          (concat "\\(def\\|class\\)\s" (thing-at-point 'symbol) "(")))))
 
-        :bind (:map python-mode-map
-                    ("M-." . 'elpy-goto-definition-or-rgrep)
-                    )
-        )
+              :bind (:map python-mode-map
+                          ("M-." . 'elpy-goto-definition-or-rgrep)
+                          )
+              )
 
 
     #+END_SRC
@@ -858,58 +899,105 @@
     #+BEGIN_SRC emacs-lisp
     (use-package highlight-indent-guides
       :ensure t
-      :after (python))
+      :defer)
 
     #+END_SRC
     Linting support using the awesome black linter
     #+BEGIN_SRC emacs-lisp
       (use-package python-black
         :ensure
-        :after python
         :bind (:map python-mode-map
                     ("M-q". 'python-black-statement)))
     #+END_SRC
 
-    Some more improvements
-    #+BEGIN_SRC emacs-lisp
-      (use-package python
-        :after python
-        :config
-        (setq python-indent-offset 4)    
-        (setq flycheck-check-syntax-automatically nil)
-        (setq python-shell-interpreter "python3") ; Set interpreter to just
-                                                 ; python, let the virtual
-                                                 ; env figure out the right
-                                                 ; python based on the context
-      (defun vig/format-python-text ()
-        "untabify and wrap python comments"
-        (interactive)
-        (untabify (point-min) (point-max))
-        (goto-char (point-min))
-        (while (re-search-forward comment-start nil t)
-          (call-interactively 'fill-paragraph)
-          (forward-line 1)))
-        :bind (:map python-mode-map
-                    ("C-c n f" . 'narrow-to-defun)
-                    ("C-c n w" . 'widen)
-                    ("<f10>" . 'elpy-yapf-fix-code)
-                    ("<RET>" . 'newline-and-indent)
-                    ("<f4>" . 'vig/format-python-text
-                    )))
-    #+END_SRC
-    Auto docstring generation for python
+    
+    Format python docstrings and provide features such as autofill.
     #+begin_src emacs-lisp
-     (use-package buftra
-       :ensure nil
-       :load-path "~/.emacs.d/local/buftra.el/"
-       )
-
-     (use-package py-pyment
-       :ensure nil
-       :load-path "~/.emacs.d/local/py-cmd-buffer.el"
-       :config
-       (setq py-pyment-options '("--output=numpydoc")))
+      (use-package python-docstring
+        :ensure t
+        )
     #+end_src
+    
+    Some imenu tweaks for python
+    #+begin_src emacs-lisp
+      (defun my-merge-imenu ()
+        (interactive)
+        (let ((mode-imenu (imenu-default-create-index-function))
+              (custom-imenu (imenu--generic-function imenu-generic-expression)))
+          (append mode-imenu custom-imenu))) 
+      (add-to-list
+       'imenu-generic-expression
+       '("Sections" "^#### \\[ \\(.*\\) \\]$" 1))
+      (setq imenu-create-index-function 'my-merge-imenu)
+
+      (defun python-imenu-use-flat-index
+          ()
+        (setq imenu-create-index-function
+              #'python-imenu-create-flat-index))
+
+      (add-hook 'python-mode-hook
+                #'python-imenu-use-flat-index)
+    #+end_src
+    
+
+    Putting all the configurations together
+    #+begin_src emacs-lisp
+      (defun vig/python-configs ()
+      (auto-fill-mode)
+      (python-docstring-mode)
+      (auto-fill-mode t)
+      (python-docstring-mode)
+      (elpy-enable)
+      (pyenv-mode)
+      (setq comment-auto-fill-only-comments t
+              python-indent-offset 4
+              python-shell-interpreter "python3")
+      )
+    #+end_src
+
+
+    #+BEGIN_SRC emacs-lisp
+
+      (use-package python-mode
+        :ensure t
+        :config
+        (add-hook 'python-mode-hook 'vig/python-configs)
+
+        (defun vig/format-python-text ()
+          "untabify and wrap python comments"
+          (interactive)
+          (untabify (point-min) (point-max))
+          (goto-char (point-min))
+          (while (re-search-forward comment-start nil t)
+            (call-interactively 'fill-paragraph)
+            (forward-line 1)))
+        :bind
+        (:map python-mode-map
+              ("C-c n f" . 'narrow-to-defun)
+              ("C-c n w" . 'widen)
+              ("<f10>" . 'elpy-black-fix-code)
+              ("<RET>" . 'newline-and-indent)
+              ("<f4>" . 'vig/format-python-text
+               ))
+        )
+    #+END_SRC
+    #+begin_src emacs-lisp :tangle yes
+    
+    #+end_src
+
+    # Auto docstring generation for python
+    # #+begin_src emacs-lisp
+    #  (use-package buftra
+    #    :ensure nil
+    #    :load-path "~/.emacs.d/local/buftra.el/"
+    #    )
+
+    #  (use-package py-pyment
+    #    :ensure nil
+    #    :load-path "~/.emacs.d/local/py-cmd-buffer.el"
+    #    :config
+    #    (setq py-pyment-options '("--output=numpydoc")))
+    # #+end_src
    
 *** Ipython notebook mode
     This is a frontend to jupyter notebooks with emacs keybindings and
@@ -930,7 +1018,6 @@
          (use-package org
            :defer t
            :config
-           (org-indent-mode t)
            (org-babel-do-load-languages
             'org-babel-load-languages
             '((R . t)
@@ -1068,11 +1155,11 @@
 
 *** Markdown
     #+BEGIN_SRC emacs-lisp
-(use-package markdown-mode
-  :ensure t
-  :defer t)
-(setq auto-mode-alist 
-      (cons '("\\.md" . markdown-mode) auto-mode-alist))
+      (use-package markdown-mode
+        :ensure t
+        :defer t)
+      (setq auto-mode-alist 
+            (cons '("\\.md" . markdown-mode) auto-mode-alist))
     #+END_SRC
 *** Julia
     #+BEGIN_SRC emacs-lisp
@@ -1114,6 +1201,54 @@ recently I'm also using it to program in ~julia~.
 #+BEGIN_SRC emacs-lisp
 (use-package general
   :ensure t)
+#+END_SRC
+*** Navigation 
+#+BEGIN_SRC emacs-lisp
+(use-package sentence-navigation
+  :ensure t
+  :defer t
+  :config
+  (define-key evil-motion-state-map ")" 'sentence-nav-evil-forward)
+  (define-key evil-motion-state-map "(" 'sentence-nav-evil-backward)
+  (define-key evil-motion-state-map "g)" 'sentence-nav-evil-forward-end)
+  (define-key evil-motion-state-map "g(" 'sentence-nav-evil-backward-end)
+  (define-key evil-outer-text-objects-map "s" 'sentence-nav-evil-a-sentence)
+  (define-key evil-inner-text-objects-map "s" 'sentence-nav-evil-inner-sentence)) 
+#+END_SRC
+Hydras for manipulating windows 
+#+BEGIN_SRC emacs-lisp
+(defhydra hydra-window (:color red
+                        :columns nil)
+  "window"
+  ("h" windmove-left nil)
+  ("j" windmove-down nil)
+  ("k" windmove-up nil)
+  ("l" windmove-right nil)
+  ("H" hydra-move-splitter-left nil)
+  ("J" hydra-move-splitter-down nil)
+  ("K" hydra-move-splitter-up nil)
+  ("L" hydra-move-splitter-right nil)
+  ("v" (lambda ()
+         (interactive)
+         (split-window-right)
+         (windmove-right))
+       "vert")
+  ("x" (lambda ()
+         (interactive)
+         (split-window-below)
+         (windmove-down))
+       "horz")
+  ("t" transpose-frame "'" :exit t)
+  ("o" delete-other-windows "one" :exit t)
+  ("a" ace-window "ace")
+  ("s" ace-swap-window "swap")
+  ("d" ace-delete-window "del")
+  ("i" ace-maximize-window "ace-one" :exit t)
+  ("b" ido-switch-buffer "buf")
+  ("m" headlong-bookmark-jump "bmk")
+  ("q" nil "cancel")
+  ("u" (progn (winner-undo) (setq this-command 'winner-undo)) "undo")
+  ("f" nil))
 #+END_SRC
 *** Utils 
 #+BEGIN_SRC emacs-lisp
@@ -1161,27 +1296,27 @@ recently I'm also using it to program in ~julia~.
 Nice tabs mode for modern UI switching
 # Config lifted from https://github.com/ianpan870102/.use-package.emacs.d/blob/master/init.el
 #+BEGIN_SRC emacs-lisp
- (use-package centaur-tabs
-  :ensure t
-  :demand
-  :init (setq centaur-tabs-set-bar 'over)
-  :config
-  (centaur-tabs-mode)
-  (centaur-tabs-headline-match)
-  (setq centaur-tabs-set-modified-marker t
-        centaur-tabs-modified-marker " ● "
-        centaur-tabs-cycle-scope 'tabs
-        centaur-tabs-height 30
-        centaur-tabs-set-icons t
-        centaur-tabs-close-button " × ")
-  (dolist (centaur-face '(centaur-tabs-selected
-                          centaur-tabs-selected-modified
-                          centaur-tabs-unselected
-                          centaur-tabs-unselected-modified))
-    (set-face-attribute centaur-face nil :family "Arial" :height 130))
-  :bind
-  ("C-S-<tab>" . centaur-tabs-backward)
-  ("C-<tab>" . centaur-tabs-forward))
+  ;; (use-package centaur-tabs
+  ;;  :ensure t
+  ;;  :demand
+  ;;  :init (setq centaur-tabs-set-bar 'over)
+  ;;  :config
+  ;;  (centaur-tabs-mode)
+  ;;  (centaur-tabs-headline-match)
+  ;;  (setq centaur-tabs-set-modified-marker t
+  ;;        centaur-tabs-modified-marker " ● "
+  ;;        centaur-tabs-cycle-scope 'tabs
+  ;;        centaur-tabs-height 30
+  ;;        centaur-tabs-set-icons t
+  ;;        centaur-tabs-close-button " × ")
+  ;;  (dolist (centaur-face '(centaur-tabs-selected
+  ;;                          centaur-tabs-selected-modified
+  ;;                          centaur-tabs-unselected
+  ;;                          centaur-tabs-unselected-modified))
+  ;;    (set-face-attribute centaur-face nil :family "Arial" :height 130))
+  ;;  :bind
+  ;;  ("C-S-<tab>" . centaur-tabs-backward)
+  ;;  ("C-<tab>" . centaur-tabs-forward))
 #+END_SRC
 *** Multiple cursors
 
@@ -1302,6 +1437,7 @@ Setup borrowed from Kaushal Modi's setup
       (funcall (and initial-major-mode))
       (setq buffer-offer-save t)))
 #+END_SRC
+
 * Keybindings
 ** Basic keybindings
 These are evil specific keybindings. All definitions use general.el 
@@ -1322,18 +1458,26 @@ These are evil specific keybindings. All definitions use general.el
        "s-w" 'copy-line
        "s-W" 'quick-cut-line
        "<s-down>" 'duplicate-line
-       "M-I" 'counsel-imenu
+       "M-I" 'consult-imenu
        )
     #+END_SRC
 
-2. Narrow and widen
+2. Evil mode general keys
+   #+begin_src emacs-lisp :tangle yes
+     (general-define-key
+      :states 'normal
+      "u" 'undo-fu-only-undo
+      "C-r" 'undo-fu-only-redo)
+      #+end_src
 
-   #+BEGIN_SRC emacs-lisp
-     (general-define-key 
-      :prefix "M-n"
-      "n" 'narrow-to-region
-      "w" 'widen)
-   #+END_SRC
+     2. Narrow and widen
+
+        #+BEGIN_SRC emacs-lisp
+          (general-define-key 
+           :prefix "M-n"
+           "n" 'narrow-to-region
+           "w" 'widen)
+           #+END_SRC
 3. Program mode bindings
    #+BEGIN_SRC emacs-lisp
      (general-define-key
@@ -1363,3 +1507,237 @@ These are evil specific keybindings. All definitions use general.el
    (global-set-key (kbd "C-x |") 'create-empty-buffer)
    #+END_SRC
 
+2. Spacemacs type bindings
+    #+BEGIN_SRC emacs-lisp
+      (general-define-key
+      :keymaps '(normal insert emacs)
+      :prefix "SPC"
+      :non-normal-prefix "M-SPC"
+
+      ;; general
+      "SPC" 'execute-extended-command
+      ;; Window configuations
+      "w m" 'delete-other-windows
+      "w d" 'delete-window
+      "w o" 'ace-window
+      "w h" 'windmove-left
+      "w l" 'windmove-right
+      "w 2" 'split-window-horizontally
+      "w =" 'balance-windows
+
+      ;; Buffer configurations
+      "b d" 'kill-this-buffer			;Kills without asking
+      "b k" 'kill-buffer-and-window
+      "b b" 'consult-buffer
+      "[ [" 'previous-buffer
+      "] ]" 'next-buffer
+
+      ;; Dired
+      "a d" 'dired
+
+      ;; copy related
+      "c k" 'helm-show-kill-ring
+
+      ;; Undo-fu
+      "u" 'undo-fu-only-undo
+      "\C-r" 'undo-fu-only-redo
+
+      ;; File management
+      ;; "f f" 'helm-find-files
+      ;; "f r" 'helm-recentf
+      "f f" 'find-file
+      "f r" 'consult-recent-file
+      "f d" 'dired-jump-other-window
+      "f y" 'er-copy-file-name-to-clipboard
+      "f l" 'consult-locate
+      "f g" 'consult-git-grep
+
+      ;; Projectile
+      ;; "p f f" 'projectile-find-file
+      ;; "p f r" 'projectile-recentf
+      ;; "p d" 'projectile-find-dir
+      ;; "p k" 'projectile-kill-buffers
+      ;; "p s" 'projectile-switch-project
+      ;; "p o" 'projectile-switch-open-project
+      ;; "p r" 'projectile-replace
+
+      ;; Search
+      ;; "/" 'helm-swoop
+      "/" 'consult-outline
+      ;; "s a f" 'helm-ag-r-current-file
+      "s a f" 'counsel-ag
+      ;; "s a g" 'helm-ag-r-from-git-repo 
+      "s d" 'rg-dwim
+      "s p" 'rg-project
+      "s r" 'rg
+      "s t" 'rg-literal
+      "s l" 'rg-list-searches
+
+      ;; toggles
+      "t f" 'auto-fill-mode
+
+      ;; quit
+      "q q" 'save-buffers-kill-emacs
+
+      ;; Register bindings
+      ;; "r y" 'helm-show-kill-ring
+      "r y" 'consult-yank-pop
+
+
+      ;; Magit
+      "g s" 'magit-status
+      )
+    #+END_SRC
+    
+    1. Programming mode effective shortcuts
+       #+begin_src emacs-lisp
+         (general-define-key
+          :states 'normal
+          :prefix ","
+          "w" 'save-buffer
+          "l" 'next-buffer
+          "h" 'previous-buffer)
+       #+end_src
+
+*** EVIL matlab
+#+BEGIN_SRC emacs-lisp
+(general-define-key
+ :states '(normal insert visual)
+ :keymaps 'matlab-mode-map
+ :prefix ","
+ :non-normal-prefix "M-S-SPC"
+
+ ;; Running 
+ "p" 'matlab-shell
+ ","  'vig/matlab-shell-send-line
+ "r r" 'matlab-shell-run-region
+ "r c" 'matlab-shell-run-cell
+
+ ;; Commenting
+ "i f" 'matlab-indent-function-body
+ "i l" 'matlab-indent-line
+ )
+#+END_SRC
+*** EVIL org 
+#+BEGIN_SRC emacs-lisp
+(general-define-key
+ :states '(normal insert)
+ :keymaps 'org-mode-map
+ :prefix ","
+ :non-normal-prefix "M-S-SPC"
+ "e e" 'org-export-dispatch
+ "n n" 'org-narrow-to-subtree
+ "n w" 'widen
+
+ ;; Citations
+ "c" 'org-ref-helm-insert-cite-link
+ "r" 'org-ref-helm-insert-ref-link)
+ #+END_SRC
+*** EVIL latex 
+#+BEGIN_SRC emacs-lisp
+(general-define-key
+ :states '(normal insert)
+ :keymaps 'LaTeX-mode-map
+ :prefix ","
+ :non-normal-prefix "M-S-SPC"
+
+ ;; Building
+ "," 'LaTeX-command-section
+ "v" 'TeX-view
+ "." 'LaTeX-mark-environment
+
+ ;; previews
+ "p e" 'preview-environment
+ "p b" 'preview-buffer
+ "p d" 'preview-document
+ "p p" 'preview-at-point
+
+ ;; preview / clear
+ "p c r" 'preview-clearout
+ "p c s" 'preview-clearout-section
+ "p c p" 'preview-clearout-at-point
+
+ ;; inserts
+ "s" 'LaTeX-section
+ "e" 'LaTeX-environment
+ "c" 'LaTeX-close-environment
+
+ ;; citation
+ "r c" 'reftex-citation
+ "r r" 'reftex-reference
+ "r =" 'reftex-toc
+ "r p" 'reftex-citep
+
+ ;; fill
+ "f s" 'LaTeX-fill-section
+ "f p" 'LaTeX-fill-paragraph
+ "f b" 'LaTeX-fill-buffer
+ "f e" 'LaTeX-fill-environment
+ )
+
+(general-define-key
+ :states '(normal insert)
+ :keymaps 'LaTeX-mode-map
+ "<S-return>" 'LaTeX-insert-item)
+
+
+
+#+END_SRC
+*** EVIL commenting 
+#+BEGIN_SRC emacs-lisp
+(general-define-key
+ :keymaps '(normal insert emacs visual)
+ :prefix "\\"
+ :non-normal-prefix "M-S-\\"
+ "l l" 'evilnc-quick-comment-or-uncomment-to-the-line
+ "c c" 'evilnc-comment-or-uncomment-lines
+ "c p" 'evilnc-comment-or-uncomment-paragraphs
+ "c r" 'comment-or-uncomment-region
+ "c v" 'evilnc-toggle-invert-comment-line-by-line
+  "."  'evilnc-copy-and-comment-operator)
+#+END_SRC
+*** EVIL multilple cursors
+#+BEGIN_SRC emacs-lisp
+(general-define-key
+ :keymaps '(normal)
+ :prefix "SPC"
+ :non-normal-prefix "M-S-m"
+ "m w" 'mc/mark-next-word-like-this
+ "m l" 'mc/mark-next-lines
+ "m d" 'mc/mark-all-dwim
+ "m c"  'mc/add-cursor-on-click)
+
+
+(general-define-key
+ :keymaps '(visual emacs insert)
+ "M-d" 'mc/mark-next-word-like-this)
+#+END_SRC
+When in visual model (especially after selecting a word using =expand
+region=, we could mark the next occurance of the word by pressing
+=M-d=. 
+*** EVIL Navigation
+Setting up keybindings for the efficient navigation using =avy=
+navigation functions. =avy-goto-char= lets you to navigate to any
+arbitrary word in a buffer by just typing a few keystrokes - very fast
+indeed in practise. 
+#+BEGIN_SRC emacs-lisp
+(general-define-key
+ :keymaps '(normal)
+ :prefix "SPC"
+ :non-normal-prefix "M-S-SPC"
+ "g g" 'avy-goto-char
+ "g w" 'avy-goto-word-0
+ "g b" 'avy-goto-char-2-above
+
+ ;; ;; neotree
+ ;; "t t" 'neotree-toggle
+ ;; "t c" 'neotree-dir)
+ 
+
+ ;; speedbar
+ "t s" 'sr-speedbar-toggle)
+
+(general-define-key
+ :keymaps '(normal)
+ "Q" 'delete-window)
+#+END_SRC
