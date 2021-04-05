@@ -812,7 +812,16 @@
         :ensure t
         :commands company-lsp)
     #+end_src
-
+*** Yaml mode
+    #+begin_src emacs-lisp
+      (use-package yaml-mode
+        :ensure t
+        :config
+        (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
+        :bind (:map yaml-mode-map
+                    ("C-m" .  'newline-and-indent))
+        )
+    #+end_src
 
 *** Flycheck
     Flycheck mode is apparently faster and more efficient than flymake
@@ -820,6 +829,9 @@
     #+BEGIN_SRC emacs-lisp
       (use-package flycheck
         :ensure
+        :custom
+        (flycheck-emacs-lisp-initialize-packages t)
+        (flycheck-display-errors-delay 0.1)
         :config
         (global-flycheck-mode 1)
         (setq flycheck-global-modes '(not LaTeX-mode latex-mode python-mode))
@@ -907,7 +919,7 @@
       (use-package python-black
         :ensure
         :bind (:map python-mode-map
-                    ("M-q". 'python-black-statement)))
+                    ("C-M-\\". 'python-black-statement)))
     #+END_SRC
 
     
@@ -1094,6 +1106,23 @@
                 "pdflatex -interaction nonstopmode -output-directory %o %f"
                 "pdflatex -interaction nonstopmode -output-directory %o %f"))
         #+END_SRC
+        
+*** Org roam
+    #+begin_src emacs-lisp :tangle yes
+      (use-package org-roam
+        :ensure t
+        :hook
+        (after-init . org-roam-mode)
+        :custom
+        (org-roam-directory "~/Documents/roam")
+        :bind (:map org-roam-mode-map
+                    (("C-c n l" . org-roam)
+                     ("C-c n f" . org-roam-find-file)
+                     ("C-c n g" . org-roam-graph))
+                    :map org-mode-map
+                    (("C-c n i" . org-roam-insert))
+                    (("C-c n I" . org-roam-insert-immediate))))
+    #+end_src
 *** latex
     We will use the wonderful auctex mode
     #+BEGIN_SRC emacs-lisp
@@ -1586,6 +1615,9 @@ These are evil specific keybindings. All definitions use general.el
 
       ;; Magit
       "g s" 'magit-status
+
+      ;; GTD stuff
+      "o g" (lambda() (interactive)(find-file "/Users/Z0041V0/deft/GTD.org"))
       )
     #+END_SRC
     
