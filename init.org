@@ -593,7 +593,7 @@
 *** Counsel
     1. Basic counsel definition
        #+BEGIN_SRC emacs-lisp
-         ;; (use-package counsel :ensure t)
+         (use-package counsel :ensure t)
 
        #+END_SRC
 
@@ -603,13 +603,13 @@
        the TAGS file is not found in the directory, the package will
        create it for you. 
        #+BEGIN_SRC emacs-lisp
-         ;;          (use-package counsel-etags
-         ;;            :ensure t
-         ;;            :bind
-         ;;            ("C-." . 'counsel-etags-find-tag-at-point)
-         ;;            ("s-i" . 'counsel-outline)
-         ;;            ("s-." . 'counsel-git-grep)
-         ;; )
+         (use-package counsel-etags
+           :ensure t
+           :bind
+           ("C-." . 'counsel-etags-find-tag-at-point)
+           ("s-i" . 'counsel-outline)
+           ("s-." . 'counsel-git-grep)
+           )
        #+END_SRC
 *** Consult
     Completion framework similar to counsel, but with more features
@@ -1572,14 +1572,12 @@ These are evil specific keybindings. All definitions use general.el
       "\C-r" 'undo-fu-only-redo
 
       ;; File management
-      ;; "f f" 'helm-find-files
-      ;; "f r" 'helm-recentf
       "f f" 'find-file
       "f r" 'consult-recent-file
       "f d" 'dired-jump-other-window
       "f y" 'er-copy-file-name-to-clipboard
       "f l" 'consult-locate
-      "f g" 'consult-git-grep
+      "f g" 'counsel-git-grep
 
       ;; Projectile
       ;; "p f f" 'projectile-find-file
@@ -1615,6 +1613,7 @@ These are evil specific keybindings. All definitions use general.el
 
       ;; Magit
       "g s" 'magit-status
+      "g l" 'consult-line
 
       ;; GTD stuff
       "o g" (lambda() (interactive)(find-file "/Users/Z0041V0/deft/GTD.org"))
