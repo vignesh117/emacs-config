@@ -146,14 +146,15 @@
 ** Mac OS based config
    Switches meta to command from option
    #+BEGIN_SRC emacs-lisp
-    (when (memq window-system '(mac ns))
-      (setq ns-pop-up-frames nil
-            mac-option-modifier 'super
-            mac-command-modifier 'meta
-            select-enable-clipboard t)
-      (exec-path-from-shell-initialize)
-      (when (fboundp 'mac-auto-operator-composition-mode)
-        (mac-auto-operator-composition-mode 1)))'
+    (setq exec-path-from-shell-check-startup-files nil)
+     (when (memq window-system '(mac ns))
+       (setq ns-pop-up-frames nil
+             mac-option-modifier 'super
+             mac-command-modifier 'meta
+             select-enable-clipboard t)
+       (exec-path-from-shell-initialize)
+       (when (fboundp 'mac-auto-operator-composition-mode)
+         (mac-auto-operator-composition-mode 1)))'
    #+END_SRC
 ** Default configs
    I've used the better-defaults package to get some basic
@@ -286,6 +287,7 @@
                  show-paren-mode              ; Highlight matching parentheses
                  which-key-mode))             ; Available keybindings in popup
         (funcall mode 1)
+        (flymake-mode -1)
         (line-number-mode -1)
         (tooltip-mode -1))
                  #+END_SRC
@@ -390,6 +392,21 @@
       ;;   :ensure t
       ;;   :bind ("s-x" . amx))
     #+END_SRC
+*** ssh deploy
+Helps writing code locally and deploying them on remote machine
+#+begin_src emacs-lisp
+  (use-package ssh-deploy
+    :ensure t
+    :demand
+    :after hydra
+    :hook ((after-save . ssh-deploy-after-save)
+           (find-file . ssh-deploy-find-file))
+    :config
+    (ssh-deploy-line-mode) ;; If you want mode-line feature
+    (ssh-deploy-add-menu) ;; If you want menu-bar feature:ensure t
+    )
+#+end_src
+
 *** Evil
     #+begin_src emacs-lisp
       (use-package evil
@@ -767,76 +784,76 @@
                    ("P" . peep-dired)))
     #+END_SRC
 *** Tramp 
-    This has some refinements for tramp mode
-    #+BEGIN_SRC emacs-lisp
-      (use-package tramp
-        :config
-        (setq tramp-inline-compress-start-size 1000000)
-        ;;(setq vc-handled-backends (quote (RCS CVS SVN SCCS Bzr Hg Mtn Arch)))
-        (setq vc-handled-backends '(SVN Git))
-        (setq remote-file-name-inhibit-cache nil)
-        (setq vc-ignore-dir-regexp
-              (format "%s\\|%s"
-                      vc-ignore-dir-regexp
-                      tramp-file-name-regexp))
-        (setq tramp-verbose 1)
-        )
-    #+END_SRC
+This has some refinements for tramp mode
+#+BEGIN_SRC emacs-lisp
+  (use-package tramp
+    :config
+    (setq tramp-inline-compress-start-size 1000000)
+    ;;(setq vc-handled-backends (quote (RCS CVS SVN SCCS Bzr Hg Mtn Arch)))
+    (setq vc-handled-backends '(SVN Git))
+    (setq remote-file-name-inhibit-cache nil)
+    (setq vc-ignore-dir-regexp
+          (format "%s\\|%s"
+                  vc-ignore-dir-regexp
+                  tramp-file-name-regexp))
+    (setq tramp-verbose 1)
+    )
+#+END_SRC
 *** Deft mode
-    #+BEGIN_SRC emacs-lisp
-      (use-package deft
-        :ensure t
-        :bind ("<f8>" . 'deft)
-        :config
-        (setq deft-directory "~/deft"
-              deft-extensions '("org")
-              deft-default-extension "org"
-              deft-recursive t
-              deft-use-filter-string-for-filename t)
-        (auto-fill-mode 1)
-        )
-    #+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (use-package deft
+    :ensure t
+    :bind ("<f8>" . 'deft)
+    :config
+    (setq deft-directory "~/deft"
+          deft-extensions '("org")
+          deft-default-extension "org"
+          deft-recursive t
+          deft-use-filter-string-for-filename t)
+    (auto-fill-mode 1)
+    )
+#+END_SRC
 *** LSP mode
-    #+begin_src emacs-lisp
-      (use-package lsp-mode
-        :ensure t
-        :commands (lsp lsp-deferred)
-        :config
-        (setq lsp-ui-doc-enable nil
-            lsp-ui-peek-enable t
-            lsp-ui-sideline-enable t
-            lsp-ui-imenu-enable t
-            lsp-ui-flycheck-enable t))
+#+begin_src emacs-lisp
+  (use-package lsp-mode
+    :ensure t
+    :commands (lsp lsp-deferred)
+    :config
+    (setq lsp-ui-doc-enable nil
+        lsp-ui-peek-enable t
+        lsp-ui-sideline-enable t
+        lsp-ui-imenu-enable t
+        lsp-ui-flycheck-enable t))
 
-      (use-package company-lsp
-        :ensure t
-        :commands company-lsp)
-    #+end_src
+  (use-package company-lsp
+    :ensure t
+    :commands company-lsp)
+#+end_src
 *** Yaml mode
-    #+begin_src emacs-lisp
-      (use-package yaml-mode
-        :ensure t
-        :config
-        (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
-        :bind (:map yaml-mode-map
-                    ("C-m" .  'newline-and-indent))
-        )
-    #+end_src
+#+begin_src emacs-lisp
+  (use-package yaml-mode
+    :ensure t
+    :config
+    (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
+    :bind (:map yaml-mode-map
+                ("C-m" .  'newline-and-indent))
+    )
+#+end_src
 
 *** Flycheck
-    Flycheck mode is apparently faster and more efficient than flymake
-    mode that comes by default with emacs
-    #+BEGIN_SRC emacs-lisp
-      (use-package flycheck
-        :ensure
-        :custom
-        (flycheck-emacs-lisp-initialize-packages t)
-        (flycheck-display-errors-delay 0.1)
-        :config
-        (global-flycheck-mode 1)
-        (setq flycheck-global-modes '(not LaTeX-mode latex-mode python-mode))
-        (flymake-mode -1))
-    #+END_SRC
+Flycheck mode is apparently faster and more efficient than flymake
+mode that comes by default with emacs
+#+BEGIN_SRC emacs-lisp
+  (use-package flycheck
+    :ensure
+    :custom
+    (flycheck-emacs-lisp-initialize-packages t)
+    (flycheck-display-errors-delay 0.1)
+    :config
+    (global-flycheck-mode 1)
+    (setq flycheck-global-modes '(not LaTeX-mode latex-mode python-mode))
+    (flymake-mode -1))
+#+END_SRC
 *** Docker
     1. Docker-mode to highlight docker files
        #+begin_src emacs-lisp
@@ -919,7 +936,7 @@
       (use-package python-black
         :ensure
         :bind (:map python-mode-map
-                    ("C-M-\\". 'python-black-statement)))
+                    ("C-M-\\" . 'python-black-statement)))
     #+END_SRC
 
     
@@ -961,6 +978,7 @@
       (python-docstring-mode)
       (elpy-enable)
       (pyenv-mode)
+      (hs-minor-mode)
       (setq comment-auto-fill-only-comments t
               python-indent-offset 4
               python-shell-interpreter "python3")
@@ -988,6 +1006,7 @@
               ("C-c n f" . 'narrow-to-defun)
               ("C-c n w" . 'widen)
               ("<f10>" . 'elpy-black-fix-code)
+              ("C-M-\\" . 'python-black-statement)
               ("<RET>" . 'newline-and-indent)
               ("<f4>" . 'vig/format-python-text
                ))
@@ -1012,16 +1031,15 @@
     # #+end_src
    
 *** Ipython notebook mode
-    This is a frontend to jupyter notebooks with emacs keybindings and
-    other features.
+This is a frontend to jupyter notebooks with emacs keybindings and
+other features.
 
-    #+BEGIN_SRC emacs-lisp
-      (use-package ein
-	:ensure t
-	:defer
-	:diminish "ein"
-	)
-    #+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (use-package ein
+    :ensure t
+    :defer
+    :diminish "ein")
+#+END_SRC
 *** Org mode
     1. *Babel*: Org babel lets you to write and execute a lot of
        languages within org mode
@@ -1037,6 +1055,8 @@
               (latex . t)
               (python . t))
             )
+           (add-hook 'org-mode-hook (lambda () (org-indent-mode 1)
+                                      (turn-on-auto-fill)))
 
            ;; When editing org-files with source-blocks, we want the source
            ;; blocks to be themed as they would in their native mode.
@@ -1108,110 +1128,126 @@
         #+END_SRC
         
 *** Org roam
-    #+begin_src emacs-lisp :tangle yes
-      (use-package org-roam
-        :ensure t
-        :hook
-        (after-init . org-roam-mode)
-        :custom
-        (org-roam-directory "~/Documents/roam")
-        :bind (:map org-roam-mode-map
-                    (("C-c n l" . org-roam)
-                     ("C-c n f" . org-roam-find-file)
-                     ("C-c n g" . org-roam-graph))
-                    :map org-mode-map
-                    (("C-c n i" . org-roam-insert))
-                    (("C-c n I" . org-roam-insert-immediate))))
-    #+end_src
+#+begin_src emacs-lisp :tangle yes
+  (use-package org-roam
+    :ensure t
+    :hook
+    (after-init . org-roam-mode)
+    :custom
+    (org-roam-directory "~/Documents/roam")
+    :bind (:map org-roam-mode-map
+                (("C-c n l" . org-roam)
+                 ("C-c n f" . org-roam-find-file)
+                 ("C-c n g" . org-roam-graph))
+                :map org-mode-map
+                (("C-c n i" . org-roam-insert))
+                (("C-c n I" . org-roam-insert-immediate))))
+#+end_src
+*** Evil org
+#+begin_src emacs-lisp
+  (use-package evil-org
+    :ensure t
+    :defer t
+    :config
+    (add-hook 'org-mode-hook 'evil-org-mode))
+
+#+end_src
+
 *** latex
-    We will use the wonderful auctex mode
-    #+BEGIN_SRC emacs-lisp
-      ;; (setq reftex-default-bibliography "/Users/vigneshganapathiraman/bibliography/references_zotero.bib")
-      (use-package reftex
-        :ensure t
-        :after auctex
-        :config
-        (setq reftex-enable-partial-scans t)
-        (setq reftex-save-parse-info t)
-        (setq reftex-use-multiple-selection-buffers t)
-        (setq reftex-plug-into-AUCTeX t)
-        (setq reftex-label-alist '(AMSTeX))   ;enable eqref inside reftex
+We will use the wonderful auctex mode
+#+BEGIN_SRC emacs-lisp
+  ;; (setq reftex-default-bibliography "/Users/vigneshganapathiraman/bibliography/references_zotero.bib")
+  (use-package reftex
+    :ensure t
+    :after auctex
+    :config
+    (setq reftex-enable-partial-scans t)
+    (setq reftex-save-parse-info t)
+    (setq reftex-use-multiple-selection-buffers t)
+    (setq reftex-plug-into-AUCTeX t)
+    (setq reftex-label-alist '(AMSTeX))   ;enable eqref inside reftex
+    ) 
 
-        ) 
+  (use-package tex-site
+    :ensure auctex
+    :mode ("\\.tex\\'" . latex-mode)
+    :defer t
+    :config
+    (setq-default bibtex-dialect 'biblatex)
+    (add-hook 'LaTeX-mode-hook
+              (lambda ()
+                (turn-on-reftex)
+                (turn-on-auto-fill)
+                (latex-math-mode)
+                (TeX-PDF-mode t)
+                (TeX-source-correlate-mode t)
+                (setq TeX-source-correlate-method 'synctex)
+                (setq 
+                 TeX-source-correlate-start-server t
+                 )
+                (setq TeX-view-program-selection '((output-pdf "pdf-tools")))
+                (setq auctex-latexmk-inherit-TeX-PDF-mode t)
+                (setq TeX-view-program-list
+                      '(("pdf-tools" "TeX-pdf-tools-sync-view")))
+                (add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)
 
-      (use-package tex-site
-        :ensure auctex
-        :mode ("\\.tex\\'" . latex-mode)
-        :defer t
-        :config
-        (setq-default bibtex-dialect 'biblatex)
-        (add-hook 'LaTeX-mode-hook
-                  (lambda ()
-                    (turn-on-reftex)
-                    (turn-on-auto-fill)
-                    (latex-math-mode)
-                    (TeX-PDF-mode t)
-                    (TeX-source-correlate-mode t)
-                    (setq TeX-source-correlate-method 'synctex)
-                    (setq 
-                     TeX-source-correlate-start-server t
-                     )
-                    (setq TeX-view-program-selection '((output-pdf "pdf-tools")))
-                    (setq auctex-latexmk-inherit-TeX-PDF-mode t)
-                    (setq TeX-view-program-list
-                          '(("pdf-tools" "TeX-pdf-tools-sync-view")))
-                    (add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)
+                ;; Fix indentation
+                (setq LaTeX-indent-level 3)
+                (setq LaTeX-item-indent 3)
+                (setq TeX-brace-indent-level 3)
+                (add-to-list 'company-backends 'company-math-symbols-unicode)
+                ))
+    )
+  (use-package auctex-latexmk
+    :ensure t
+    :defer
+    :config
+    (auctex-latexmk-setup)
+    )
 
-                    ;; Fix indentation
-                    (setq LaTeX-indent-level 3)
-                    (setq LaTeX-item-indent 3)
-                    (setq TeX-brace-indent-level 3)
-                    (add-to-list 'company-backends 'company-math-symbols-unicode)
-                    ))
-        )
-      (use-package auctex-latexmk
-        :ensure t
-        :defer
-        :config
-        (auctex-latexmk-setup)
-        )
-
-      (use-package company-math
-        :ensure t
-        :after auctex)
-
-    #+END_SRC
+  (use-package company-math
+    :ensure t
+    :after auctex)
+#+END_SRC
 
 *** Markdown
-    #+BEGIN_SRC emacs-lisp
-      (use-package markdown-mode
-        :ensure t
-        :defer t)
-      (setq auto-mode-alist 
-            (cons '("\\.md" . markdown-mode) auto-mode-alist))
-    #+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (use-package markdown-mode
+    :ensure t
+    :defer t)
+  (setq auto-mode-alist 
+        (cons '("\\.md" . markdown-mode) auto-mode-alist))
+#+END_SRC
 *** Julia
-    #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
   (use-package julia-mode
     :ensure t
     :defer t)
-    #+END_SRC
+#+END_SRC
 
 *** Go lang
-    Emacs setup for golang
-    #+BEGIN_SRC emacs-lisp
-      (use-package go-mode
-        :ensure
-        :config
-        (add-to-list 'auto-mode-alist '("\\.go\\'" . go-mode))
-        (add-hook 'go-mode-hook 'lsp-deferred)
+Emacs setup for golang
+#+BEGIN_SRC emacs-lisp
+  (use-package go-mode
+  :ensure
+  :config
+  (add-to-list 'auto-mode-alist '("\\.go\\'" . go-mode))
+  (add-hook 'go-mode-hook 'lsp-deferred)
 
-        :bind
-        (:map go-mode-map
-              ("<f10>" . 'lsp-format-buffer)
-              ("M-q" . 'lsp-format-region)
-              ("M-." . 'lsp-describe-thing-at-point)))
-    #+END_SRC
+  :bind
+  (:map go-mode-map
+          ("<f10>" . 'lsp-format-buffer)
+          ("M-q" . 'lsp-format-region)
+          ("M-." . 'lsp-describe-thing-at-point)))
+#+END_SRC
+*** Hive
+#+begin_src emacs-lisp
+  (use-package hive :ensure
+    :defer t
+    :config
+    (add-to-list 'auto-mode-alist '("\\.hql\\'" . sql-hive)))
+#+end_src
+
 *** ESS
 ESS (/Emacs speaks statistics/) is a comprehensive package for using statistcs related packagse in
 emacs. I mostly use it to interact with R and write R code. However,
@@ -1222,9 +1258,7 @@ recently I'm also using it to program in ~julia~.
     :defer t
     :mode (
            ("\\.R\\'" . ess-r-mode)
-           ("\\.jl\\'" . ess-julia-mode))
-
-    )
+           ("\\.jl\\'" . ess-julia-mode)))
 #+END_SRC
 *** General
 #+BEGIN_SRC emacs-lisp
@@ -1348,7 +1382,6 @@ Nice tabs mode for modern UI switching
   ;;  ("C-<tab>" . centaur-tabs-forward))
 #+END_SRC
 *** Multiple cursors
-
 Setup borrowed from Kaushal Modi's setup
 #+BEGIN_SRC emacs-lisp
   ;; Time-stamp: <2017-09-20 09:52:55 kmodi>
@@ -1452,19 +1485,18 @@ Setup borrowed from Kaushal Modi's setup
         (setq auto-revert-interval 0.5) 
 )
     #+END_SRC
-
 ** Custom functions
 - Create an empty buffer
 #+BEGIN_SRC emacs-lisp
-  (defun create-empty-buffer () 
-    "Open a new empty buffer.
-     Borrowed from
-     https://emacs.stackexchange.com/questions/20/re-open-scratch-buffer"
-    (interactive)
-    (let ((buf (generate-new-buffer "untitled")))
-      (switch-to-buffer buf)
-      (funcall (and initial-major-mode))
-      (setq buffer-offer-save t)))
+(defun create-empty-buffer () 
+"Open a new empty buffer.
+Borrowed from
+https://emacs.stackexchange.com/questions/20/re-open-scratch-buffer"
+(interactive)
+(let ((buf (generate-new-buffer "untitled")))
+(switch-to-buffer buf)
+(funcall (and initial-major-mode))
+(setq buffer-offer-save t)))
 #+END_SRC
 
 * Keybindings
